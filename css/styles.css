@@ -1,7 +1,7 @@
 body {
 
     background-image: url("../images/illustration/high-angle-view-poker-chips-green-table.jpg");
-    background-size: 100%;
+    background-size: 110%;
  
     /*
     <a href='https://www.freepik.com/photos/background'>Background photo created by freepik - www.freepik.com</a>
@@ -12,12 +12,50 @@ body {
     color: white;
     font-family: 'Permanent Marker', cursive;
     font-family: 'Sansita Swashed', cursive;
-    font-size: 2rem;
-    margin-left: 30%;
+    font-size: 3rem;
+    margin-left: 35%;
     text-align: center;
 
 }
 
-.welcome-pic {
-    max-width: 25%;
+.button {
+
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+.play-button {
+    background-color: white; 
+    color: black; 
+    border-radius: 12px; 
+    font-size: 36px;
+    font-family: 'Russo One', sans-serif;
+}
+.play-button:hover {
+
+    background-color: #ff3300;
+    color: black;
+}
+
+.hidden-header {
+    visibility: hidden;
+}
+
+.game {
+    padding-top: 10%;
+}
+
+
+.player-cards, .dealer-cards {
+    margin-left: 55%;
+    padding: 2.5%;
+    visibility: hidden;
+}
+
+.player-start-card {
+    max-width: 20%;
+}
+
+.dealer-start-card {
+    max-width: 20%;
 }

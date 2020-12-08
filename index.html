@@ -1,23 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Black Jack Game</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Sansita+Swashed:wght@600&display=swap"
+      rel="stylesheet"
+    />
     <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Sansita+Swashed:wght@600&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div class="header">
-        <h1>
-            <p>Welcome to </p>
-            the Black Jack Game
-        </h1>
-        <button>Let's play</button>
-    </div>
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <section class="intro">
+        <div class="header">
+            <h1>
+              <p>Welcome to</p>
+              the Black Jack Game!
+            </h1>
+            <button class="play-button">Let's play</button>
+          </div>
+          <div class="dealer-cards">
+            <img class="dealer-start-card" src="images/illustration/Red_back.jpg" alt="no-red-pic">
+            <img class="dealer-start-card" src="images/illustration/Red_back.jpg" alt="no-red-pic">
+        </div>
+    </section>
 
-
-    
-</body>
+    <section class="game">
+        <div class="player-cards">
+            <img class="player-start-card" src="images/illustration/Red_back.jpg" alt="no-red-pic">
+            <img class="player-start-card" src="images/illustration/Red_back.jpg" alt="no-red-pic">
+            <div>
+                <button class="play-button hit-button">Hit</button>
+                <button class="play-button stand-button">Stand</button>
+            </div>
+        </div>
+    </section>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="js/index.js"></script>
+  </body>
 </html>
