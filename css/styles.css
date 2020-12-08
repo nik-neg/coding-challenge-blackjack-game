@@ -21,16 +21,20 @@ body {
 .button {
     transition-duration: 0.4s;
     cursor: pointer;
+
 }
 
 .play-buttons {
     margin-left: 55%;
+    visibility: hidden;
 }
 
 .play-button {
     background-color: white; 
     color: black; 
-    border-radius: 12px; 
+    border-color: white;
+    border-style: solid;
+    border-radius: 12px;
     font-size: 36px;
     font-family: 'Russo One', sans-serif;
     
@@ -42,7 +46,8 @@ body {
 }
 
 .hit-button{
-    
+    border-color: None;
+    border-style: solid;
 }
 .hit-button:hover {
     background-color: #ff0000;
@@ -50,15 +55,18 @@ body {
 }
 
 .stand-button {
+    border-color: None;
+    border-style: solid;
     margin-left: 2.5%;
 }
 .stand-button:hover {
-
     background-color: #00ff00;
     color: black;
 }
 
 .next-button {
+    border-color: None;
+    border-style: solid;
     margin-left: 2.5%;
 }
 
