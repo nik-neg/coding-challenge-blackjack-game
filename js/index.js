@@ -1,3 +1,4 @@
+
 $( document ).ready(function() {
   document.querySelector(".start-button").addEventListener("click", function() {
 
@@ -14,14 +15,11 @@ $( document ).ready(function() {
 
   document.querySelector(".next-button").addEventListener("click", function() {
 
-    // get new cards
-    //let tempString = "file:///C:/Users/krisc/Documents/TH_Arbeitsgruppe/9/UDEMY-COURSERA/PROGRAMMING%20BOOTCAMP%20PREPARATION/programming-bootcamp-admission-challenge/images/illustration/Red_back.jpg";
-    //console.log(tempString.indexOf(illustration))
+    // get new cards for dealer
     let directoryPathOfImage = document.querySelector('.dealer-start-card').src;
-    let newPath              = directoryPathOfImage.slice(0, tempString.indexOf(illustration));
+    let newPath              = directoryPathOfImage.slice(0, directoryPathOfImage.indexOf("illustration"))+"cards/";
 
     let leftCard = "";
-    let i = 0;
     while(usedCardList.indexOf(leftCard) === -1) {
       leftCard = (Math.floor(Math.random()*52)+1) % 53;
       usedCardList.push(leftCard)
@@ -33,13 +31,27 @@ $( document ).ready(function() {
       usedCardList.push(rightCard)
       //console.log(usedCardList.indexOf(rightCard))
     }
-    document.querySelector('.dealer-start-card').src = 
+    document.querySelector('.dealer-start-card-left').src  = newPath+leftCard+".jpg";
+    document.querySelector('.dealer-start-card-right').src = newPath+rightCard+".jpg";
 
+    // get new cards for player
+    directoryPathOfImage = document.querySelector('.player-start-card').src;
+    newPath              = directoryPathOfImage.slice(0, directoryPathOfImage.indexOf("illustration"))+"cards/";
 
-    document.querySelector('.dealer-cards').style.visibility  = 'visible';
-    document.querySelector('.player-cards').style.visibility  = 'visible';
-
-
+    leftCard = "";
+    while(usedCardList.indexOf(leftCard) === -1) {
+      leftCard = (Math.floor(Math.random()*52)+1) % 53;
+      usedCardList.push(leftCard)
+      //console.log(usedCardList.indexOf(leftCard))
+    }
+    rightCard = "";
+    while(usedCardList.indexOf(rightCard) === -1) {
+      rightCard = (Math.floor(Math.random()*52)+1) % 53;
+      usedCardList.push(rightCard)
+      //console.log(usedCardList.indexOf(rightCard))
+    }
+    document.querySelector('.player-start-card-left').src  = newPath+leftCard+".jpg";
+    document.querySelector('.player-start-card-right').src = newPath+rightCard+".jpg";
   });
 })
 
