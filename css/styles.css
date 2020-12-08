@@ -1,0 +1,23 @@
+body {
+
+    background-image: url("../images/illustration/high-angle-view-poker-chips-green-table.jpg");
+    background-size: 100%;
+ 
+    /*
+    <a href='https://www.freepik.com/photos/background'>Background photo created by freepik - www.freepik.com</a>
+    */
+}
+
+.header {
+    color: white;
+    font-family: 'Permanent Marker', cursive;
+    font-family: 'Sansita Swashed', cursive;
+    font-size: 2rem;
+    margin-left: 30%;
+    text-align: center;
+
+}
+
+.welcome-pic {
+    max-width: 25%;
+}
