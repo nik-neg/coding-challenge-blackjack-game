@@ -19,9 +19,12 @@ body {
 }
 
 .button {
-
     transition-duration: 0.4s;
     cursor: pointer;
+}
+
+.play-buttons {
+    margin-left: 55%;
 }
 
 .play-button {
@@ -30,10 +33,38 @@ body {
     border-radius: 12px; 
     font-size: 36px;
     font-family: 'Russo One', sans-serif;
+    
 }
 .play-button:hover {
 
-    background-color: #ff3300;
+    background-color: #ffff00;
+    color: black;
+}
+
+.hit-button{
+    
+}
+.hit-button:hover {
+    background-color: #ff0000;
+    color: black;
+}
+
+.stand-button {
+    margin-left: 2.5%;
+}
+.stand-button:hover {
+
+    background-color: #00ff00;
+    color: black;
+}
+
+.next-button {
+    margin-left: 2.5%;
+}
+
+.next-button:hover {
+
+    background-color: #ffff00;
     color: black;
 }
 
@@ -42,7 +73,7 @@ body {
 }
 
 .game {
-    padding-top: 10%;
+    padding-top: 5%;
 }
 
 
