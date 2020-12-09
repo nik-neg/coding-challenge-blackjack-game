@@ -9,16 +9,12 @@ $( document ).ready(function() {
   document.querySelector('.dealer-cards').style.visibility  = 'visible';
   document.querySelector('.player-cards').style.visibility  = 'visible';
   document.querySelector('.play-buttons').style.visibility  = 'visible';
-
-
   });
 
-  let blackJack = false;
+  let gameOver = false;
 
   let playersTurn = true;
-
   let startOfGame = true;
-
   let resultDealer = 0;
   let resultPlayer = 0;
 
@@ -53,7 +49,6 @@ $( document ).ready(function() {
     checkWinner(resultDealer, resultPlayer);
 
   });
-
 
   function getNewCards(opponent, pathToCheck) {
     // get new cards
@@ -117,11 +112,14 @@ function checkWinner(resultDealer, resultPlayer) {
   if(resultPlayer !== "Black Jack") {
     resultPlayer = parseInt(resultPlayer);
   }
-  console.log(typeof resultDealer, resultDealer)
-  console.log(typeof resultPlayer, resultPlayer)
+  //console.log(typeof resultDealer, resultDealer)
+  //console.log(typeof resultPlayer, resultPlayer)
 
   if (resultDealer === resultPlayer && (resultPlayer === "Black Jack")) {
+    gameOver = true;
     $(".intro").append("<h1 class='winner'>Draw!</h1>")
+    $(".dealer-points").css('color', 'white');
+    $(".player-points").css('color', 'white');
   } else if ((resultDealer === "Black Jack" || (resultDealer > resultPlayer) && resultDealer <= 21) || (resultPlayer > 21)) {
     //console.log("dealer wins")
     $(".dealer-points").css('color', 'white');
@@ -136,15 +134,11 @@ function checkWinner(resultDealer, resultPlayer) {
   }
 }
 
-
 document.querySelector(".hit-button").addEventListener("click", function() {
   console.log("Hit")
   if(!startOfGame && extractResults("player") <= 20 && playersTurn) {
     // hit new card
     hitNewCard("player");
-    //let newCard = hitNewCard("player");
-    //let newCardTag = `<img class='player-start-card player-start-card-new' src='images/cards/${newCard}' alt='no-red-pic'>`;
-    //$(".player-cards").append(newCardTag);
 
     resultDealer = extractResults("dealer");
     resultPlayer = extractResults("player");
@@ -162,14 +156,12 @@ function hitNewCard(opponent) {
   } else {
     resultPlayer = parseInt(extractResults(opponent)) + defineAceValueWhenHit(); 
   }
-  console.log("hit stand dealer"+resultPlayer)
+  console.log(`hit stand ${opponent} `+resultPlayer)
 
   $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${resultPlayer}`);
 
   let newCardTag = `<img class='${opponent}-start-card ${opponent}-start-card-new' src='images/cards/${newCard}.jpg' alt='no-red-pic'>`;
   $(`.${opponent}-cards`).prepend(newCardTag);
-
-  //return newCard+".jpg";
 }
 
   document.querySelector(".stand-button").addEventListener("click", function() {
@@ -199,10 +191,13 @@ function hitNewCard(opponent) {
   }
 
   function stand() {
-    hitNewCard("dealer");
     resultDealer = extractResults("dealer");
     resultPlayer = extractResults("player");
+    console.log(resultDealer, resultPlayer)
+    while(resultDealer <= resultPlayer && resultDealer <= 21) {
+      hitNewCard("dealer");
+      resultDealer = extractResults("dealer");
+    }
     checkWinner(resultDealer, resultPlayer);
   }
-
 });
