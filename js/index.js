@@ -34,7 +34,7 @@ $( document ).ready(function() {
       document.querySelector(".winner").remove();
     }
 
-    let pathToCheck          = "";
+    let pathToCheck = "";
     if(startOfGame) {
       pathToCheck = "illustration";
       startOfGame = false;
@@ -87,29 +87,44 @@ $( document ).ready(function() {
     if ((leftCardValue === 10 && rigthCardValue ==="ace") || (leftCardValue === "ace" && rigthCardValue === 10)) {
       points = "Black Jack";
     } else {
-      if (leftCardValue === "ace" && opponent === "player") {
-        leftCardValue = defineAceValue(leftCardValue, rigthCardValue);
+        if (leftCardValue === "ace" && opponent === "player") {
+          leftCardValue = defineAceValue(leftCardValue, rigthCardValue);
+        }
+        if (rigthCardValue === "ace" && opponent === "player") {
+          rigthCardValue = defineAceValue(rigthCardValue, leftCardValue);
+        }
+            // for dealer
+        if (rigthCardValue === "ace" && opponent === "dealer") {
+          rigthCardValue = 11;
+        }
+        if (leftCardValue === "ace" && opponent === "dealer") {
+          leftCardValue = 11;
+        }
+        points = leftCardValue+rigthCardValue;
       }
-      if (rigthCardValue === "ace" && opponent === "player") {
-        rigthCardValue = defineAceValue(rigthCardValue, leftCardValue);
-      }
-      points = leftCardValue+rigthCardValue;
-    }
+
     $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${points}`);
   }
 
 function checkWinner(resultDealer, resultPlayer) {
-  resultDealer = parseInt(resultDealer);
-  resultPlayer = parseInt(resultPlayer);
+  if (typeof resultDealer === Number) {
+    resultDealer = parseInt(resultDealer);
+  }
+  if (typeof resultPlayer === Number) {
+    resultPlayer = parseInt(resultPlayer);
+  }
 
   if (resultDealer === resultPlayer && (resultPlayer === "Black Jack")) {
     $(".intro").append("<h1 class='winner'>Draw!</h1>")
-  } else if ((resultDealer > resultPlayer) || (resultPlayer > 21)) {
+  } else if ((resultDealer > resultPlayer) || (resultPlayer > 21 || resultDealer === "Black Jack")) {
     $(".dealer-points").css('color', 'white');
     $(".player-points").css('color', 'red');
-  } else if (resultDealer < resultPlayer && resultPlayer <= 21) {
+  } else if (resultDealer < resultPlayer && (resultPlayer <= 21)|| resultPlayer === "Black Jack") {
     $(".dealer-points").css('color', 'red');
     $(".player-points").css('color', 'white');
+  } else {
+    $(".dealer-points").css('color', 'red');
+    $(".player-points").css('color', 'red');
   }
 }
 
@@ -118,9 +133,10 @@ document.querySelector(".hit-button").addEventListener("click", function() {
   console.log("Hit")
   if(!startOfGame && extractResults("player") <= 20) {
     // hit new card
-    let newCard = hitNewCard("player");
-    let newCardTag = `<img class='player-start-card player-start-card-new' src='images/cards/${newCard}' alt='no-red-pic'>`;
-    $(".player-cards").append(newCardTag);
+    hitNewCard("player");
+    //let newCard = hitNewCard("player");
+    //let newCardTag = `<img class='player-start-card player-start-card-new' src='images/cards/${newCard}' alt='no-red-pic'>`;
+    //$(".player-cards").append(newCardTag);
 
     resultDealer = extractResults("dealer");
     resultPlayer = extractResults("player");
@@ -129,24 +145,28 @@ document.querySelector(".hit-button").addEventListener("click", function() {
 });
 
 function hitNewCard(opponent) {
+  console.log(opponent)
   let pathToCheck = "cards";
   let newCard = (Math.floor(Math.random()*52)+1) % 53;
 
   let resultPlayer = 0;
   if (mapNumberToCardValue(newCard) !== "ace") {
-    resultPlayer = parseInt(extractResults("player")) + parseInt(mapNumberToCardValue(newCard));
+    resultPlayer = parseInt(extractResults(opponent)) + parseInt(mapNumberToCardValue(newCard));
   } else {
-    resultPlayer = parseInt(extractResults("player")) + defineAceValueWhenHit(); 
+    resultPlayer = parseInt(extractResults(opponent)) + defineAceValueWhenHit(); 
   }
 
   $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${resultPlayer}`);
 
-  return newCard+".jpg";
+  let newCardTag = `<img class='${opponent}-start-card ${opponent}-start-card-new' src='images/cards/${newCard}.jpg' alt='no-red-pic'>`;
+  $(`.${opponent}-cards`).append(newCardTag);
+
+  //return newCard+".jpg";
 }
 
   document.querySelector(".stand-button").addEventListener("click", function() {
     console.log("Stand");
-    console.log($(".player-points").text());
+    stand();
   });
 
   function defineAceValue(cardValue, otherCardValue) {
@@ -160,11 +180,15 @@ function hitNewCard(opponent) {
 
   function defineAceValueWhenHit() {
     if (
-      confirm(`You have an ace. Do you want to threat the ace as 11? Then please click 'yes', otherwise no for 1`)) {
+      confirm(`You have an ace. Do you want to threat the ace as 11? Then please click 'ok', otherwise 'abort'' for 1`)) {
       return 11;
     } else {
       return 1;
     }
+  }
+
+  function stand() {
+    hitNewCard("dealer");
   }
 
 });
