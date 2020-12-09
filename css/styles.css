@@ -32,7 +32,7 @@ body {
 }
 
 .play-buttons {
-    margin-top: 5%;
+    margin-top: 2.5%;
     margin-left: 55%;
     visibility: hidden;
 }
@@ -97,8 +97,11 @@ body {
 
 .player-cards, .dealer-cards {
     margin-left: 65%;
-    padding: 0%;
     visibility: hidden;
+}
+
+.dealer-cards {
+    margin-top: 2.5%;
 }
 
 .player-start-card {

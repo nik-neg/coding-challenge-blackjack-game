@@ -4,11 +4,7 @@ $( document ).ready(function() {
 
     document.querySelector('.header').remove();
 
-    // add before images
-
     $(".dealer-cards").append("<h1 class='points player-points'>Player: </h1>")
-    // <h1 class="points player-points">21</h1>
-    // <h1 class="points dealer-points">21</h1>
 
     document.querySelector('.dealer-cards').style.visibility  = 'visible';
     document.querySelector('.player-cards').style.visibility  = 'visible';
@@ -24,58 +20,55 @@ $( document ).ready(function() {
   let dealersTurn = false;
   let playersTurn = false;
 
-  //usedCardList = [] // maybe not neccessary
+  let startOfGame = true;
 
   document.querySelector(".next-button").addEventListener("click", function() {
-
-    // get new cards for dealer
-    let directoryPathOfImage = document.querySelector('.dealer-start-card').src;
-    let newPath              = directoryPathOfImage.slice(0, directoryPathOfImage.indexOf("illustration"))+"cards/";
-
+    
+    let pathToCheck          = "";
+    if(startOfGame) {
+      pathToCheck = "illustration";
+      startOfGame = false;
+    } else {
+      pathToCheck = "cards"
+    }
+    getNewCards("dealer", pathToCheck);
+    getNewCards("player", pathToCheck)
     /*
-    let leftCard = "";
-    while(usedCardList.indexOf(leftCard) === -1) {
-      leftCard = (Math.floor(Math.random()*52)+1) % 53;
-      usedCardList.push(leftCard)
-      //console.log(usedCardList.indexOf(leftCard))
-    }
-    let rightCard = "";
-    while(usedCardList.indexOf(rightCard) === -1) {
-      rightCard = (Math.floor(Math.random()*52)+1) % 53;
-      usedCardList.push(rightCard)
-      //console.log(usedCardList.indexOf(rightCard))
-    }
-    */
+    // get new cards for dealer
     let leftCard = (Math.floor(Math.random()*52)+1) % 53;
     let rightCard = (Math.floor(Math.random()*52)+1) % 53;
+
+    let directoryPathOfImage = document.querySelector('.dealer-start-card').src;
+    
+    let pathToCheck          = "";
+    let newPath              = "";
+
+    if(startOfGame) {
+      pathToCheck = "illustration";
+      startOfGame = false;
+    } else {
+      pathToCheck = "cards"
+    }
+
+    newPath = directoryPathOfImage.slice(0, directoryPathOfImage.indexOf(pathToCheck))+"cards/";
     document.querySelector('.dealer-start-card-left').src  = newPath+leftCard+".jpg";
     document.querySelector('.dealer-start-card-right').src = newPath+rightCard+".jpg";
 
     // set dealer points
     let leftCardValue  = mapNumberToCardValue(leftCard);
     let rigthCardValue = mapNumberToCardValue(rightCard);
-    console.log(leftCard)
-    console.log(leftCardValue)
-    $(".dealer-points").text("Dealer: "+(leftCardValue+rigthCardValue));
+    let points         = leftCardValue+rigthCardValue;
+    if ((leftCardValue === 10 && rigthCardValue ==="ace") || (leftCardValue === "ace" && rigthCardValue === 10) ) {
+      points = "Black Jack";
+    }
+    $(".dealer-points").text("Dealer: "+(points));
+    
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // get new cards for player
     directoryPathOfImage = document.querySelector('.player-start-card').src;
     newPath              = directoryPathOfImage.slice(0, directoryPathOfImage.indexOf("illustration"))+"cards/";
 
-    /*
-    leftCard = "";
-    while(usedCardList.indexOf(leftCard) === -1) {
-      leftCard = (Math.floor(Math.random()*52)+1) % 53;
-      usedCardList.push(leftCard)
-      //console.log(usedCardList.indexOf(leftCard))
-    }
-    rightCard = "";
-    while(usedCardList.indexOf(rightCard) === -1) {
-      rightCard = (Math.floor(Math.random()*52)+1) % 53;
-      usedCardList.push(rightCard)
-      //console.log(usedCardList.indexOf(rightCard))
-    }
-    */
     leftCard = (Math.floor(Math.random()*52)+1) % 53;
     rightCard = (Math.floor(Math.random()*52)+1) % 53;
     document.querySelector('.player-start-card-left').src  = newPath+leftCard+".jpg";
@@ -83,15 +76,42 @@ $( document ).ready(function() {
 
     leftCardValue  = mapNumberToCardValue(leftCard);
     rigthCardValue = mapNumberToCardValue(rightCard);
-    $(".player-points").text("Player: "+(leftCardValue+rigthCardValue));
+    points         = leftCardValue+rigthCardValue;
+    if ((leftCardValue === 10 && rigthCardValue ==="ace") || (leftCardValue === "ace" && rigthCardValue === 10) ) {
+      points = "Black Jack";
+    }
+    $(".player-points").text("Player: "+(points));
+    */
   });
 })
 
-let lookUpTable = [2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,8,8,9,9,9,9,10,10,10,10,10,10,10,10,10,10,10,10,"jack", "jack", "jack", "jack", "ace", "ace", "ace", "ace"]
+function getNewCards(opponent, pathToCheck) {
+      // get new cards for dealer
+      let leftCard = (Math.floor(Math.random()*52)+1) % 53;
+      let rightCard = (Math.floor(Math.random()*52)+1) % 53;
+  
+      let directoryPathOfImage = document.querySelector(`.${opponent}-start-card`).src;
+      
+      let newPath              = "";
+  
+      newPath = directoryPathOfImage.slice(0, directoryPathOfImage.indexOf(pathToCheck))+"cards/";
+      document.querySelector(`.${opponent}-start-card-left`).src  = newPath+leftCard+".jpg";
+      document.querySelector(`.${opponent}-start-card-right`).src = newPath+rightCard+".jpg";
+  
+      // set dealer points
+      let leftCardValue  = mapNumberToCardValue(leftCard);
+      let rigthCardValue = mapNumberToCardValue(rightCard);
+      let points         = leftCardValue+rigthCardValue;
+      if ((leftCardValue === 10 && rigthCardValue ==="ace") || (leftCardValue === "ace" && rigthCardValue === 10) ) {
+        points = "Black Jack";
+      }
+      $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${points}`);
+}
+
+let lookUpTable = [2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,8,8,9,9,9,9,10,10,10,10,10,10,10,10,10,10,10,10,10, 10, 10, 10, "ace", "ace", "ace", "ace"]
 function mapNumberToCardValue(cardNumber) {
   return lookUpTable[cardNumber-1]; // -1 for the right indexing
 }
-console.log(lookUpTable[23])
 
 document.querySelector(".hit-button").addEventListener("click", function() {
   console.log("Hit")
@@ -99,7 +119,6 @@ document.querySelector(".hit-button").addEventListener("click", function() {
 
 document.querySelector(".stand-button").addEventListener("click", function() {
   console.log("Stand")
+  console.log($(".player-points").text())
+  //if ()
 });
-
-// set css property
-//document.getElementById('id1').style.visibility = 'hidden';
