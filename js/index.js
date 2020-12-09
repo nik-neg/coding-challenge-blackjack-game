@@ -14,8 +14,6 @@ $( document ).ready(function() {
   });
 
   let blackJack = false;
-  let isJack    = false;
-  let isAce     = false;
 
   let dealersTurn = false;
   let playersTurn = false;
@@ -32,7 +30,10 @@ $( document ).ready(function() {
     for (let i = 0; i<addedImages.length; i++) {
       addedImages[i].remove();
     }
-    
+    if(document.querySelector(".winner") !== null) {
+      document.querySelector(".winner").remove();
+    }
+
     let pathToCheck          = "";
     if(startOfGame) {
       pathToCheck = "illustration";
@@ -59,7 +60,6 @@ $( document ).ready(function() {
     let directoryPathOfImage = document.querySelector(`.${opponent}-start-card`).src;
     
     let newPath = "";
-
     newPath = directoryPathOfImage.slice(0, directoryPathOfImage.indexOf(pathToCheck))+"cards/";
     document.querySelector(`.${opponent}-start-card-left`).src  = newPath+leftCard+".jpg";
     document.querySelector(`.${opponent}-start-card-right`).src = newPath+rightCard+".jpg";
@@ -83,21 +83,31 @@ $( document ).ready(function() {
   }
 
   function displayPoints(opponent, leftCardValue, rigthCardValue) {
-    
     let points = leftCardValue+rigthCardValue;
-    if ((leftCardValue === 10 && rigthCardValue ==="ace") || (leftCardValue === "ace" && rigthCardValue === 10) ) {
+    if ((leftCardValue === 10 && rigthCardValue ==="ace") || (leftCardValue === "ace" && rigthCardValue === 10)) {
       points = "Black Jack";
+    } else {
+      if (leftCardValue === "ace" && opponent === "player") {
+        leftCardValue = defineAceValue(leftCardValue, rigthCardValue);
+      }
+      if (rigthCardValue === "ace" && opponent === "player") {
+        rigthCardValue = defineAceValue(rigthCardValue, leftCardValue);
+      }
+      points = leftCardValue+rigthCardValue;
     }
     $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${points}`);
   }
 
 function checkWinner(resultDealer, resultPlayer) {
+  resultDealer = parseInt(resultDealer);
+  resultPlayer = parseInt(resultPlayer);
+
   if (resultDealer === resultPlayer && (resultPlayer === "Black Jack")) {
     $(".intro").append("<h1 class='winner'>Draw!</h1>")
-  } else if (resultDealer > resultPlayer) {
+  } else if ((resultDealer > resultPlayer) || (resultPlayer > 21)) {
     $(".dealer-points").css('color', 'white');
     $(".player-points").css('color', 'red');
-  } else if (resultDealer <= resultPlayer) {
+  } else if (resultDealer < resultPlayer && resultPlayer <= 21) {
     $(".dealer-points").css('color', 'red');
     $(".player-points").css('color', 'white');
   }
@@ -106,25 +116,55 @@ function checkWinner(resultDealer, resultPlayer) {
 
 document.querySelector(".hit-button").addEventListener("click", function() {
   console.log("Hit")
-  if(!startOfGame) {
-  // hit new card
-  let newCard = hitNewCard("player");
-  let newCardTag = `<img class='player-start-card player-start-card-new' src='images/cards/${newCard}' alt='no-red-pic'>`;
-  $(".player-cards").append(newCardTag);
+  if(!startOfGame && extractResults("player") <= 20) {
+    // hit new card
+    let newCard = hitNewCard("player");
+    let newCardTag = `<img class='player-start-card player-start-card-new' src='images/cards/${newCard}' alt='no-red-pic'>`;
+    $(".player-cards").append(newCardTag);
+
+    resultDealer = extractResults("dealer");
+    resultPlayer = extractResults("player");
+    checkWinner(resultDealer, resultPlayer);
   }
 });
 
 function hitNewCard(opponent) {
   let pathToCheck = "cards";
   let newCard = (Math.floor(Math.random()*52)+1) % 53;
-  let resultPlayer = parseInt(extractResults("player")) + parseInt(mapNumberToCardValue(newCard));
+
+  let resultPlayer = 0;
+  if (mapNumberToCardValue(newCard) !== "ace") {
+    resultPlayer = parseInt(extractResults("player")) + parseInt(mapNumberToCardValue(newCard));
+  } else {
+    resultPlayer = parseInt(extractResults("player")) + defineAceValueWhenHit(); 
+  }
+
   $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${resultPlayer}`);
+
   return newCard+".jpg";
 }
 
   document.querySelector(".stand-button").addEventListener("click", function() {
-    console.log("Stand")
-    console.log($(".player-points").text())
+    console.log("Stand");
+    console.log($(".player-points").text());
   });
+
+  function defineAceValue(cardValue, otherCardValue) {
+    if (
+      confirm(`You have ${cardValue} and ${otherCardValue}. Do you want to threat the ace as 11? Then please click 'yes', otherwise no for 1`)) {
+      return 11;
+    } else {
+      return 1;
+    }
+  }
+
+  function defineAceValueWhenHit() {
+    if (
+      confirm(`You have an ace. Do you want to threat the ace as 11? Then please click 'yes', otherwise no for 1`)) {
+      return 11;
+    } else {
+      return 1;
+    }
+  }
 
 });
