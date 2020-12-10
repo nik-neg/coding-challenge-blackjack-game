@@ -2,7 +2,6 @@ body {
 
     background-image: url("../images/illustration/high-angle-view-poker-chips-green-table.jpg");
     background-size: 150%;
- 
     /*
     <a href='https://www.freepik.com/photos/background'>Background photo created by freepik - www.freepik.com</a>
     */
@@ -14,21 +13,17 @@ body {
     font-family: 'Sansita Swashed', cursive;
     font-size: 2.5rem;
     margin-left: 60%;
-
     text-align: center;
-
 }
 
-.ponts {
+.points {
     color: white;
     font-size: 3rem;
 }
 
-
 .button {
-    transition-duration: 0.4s;
     cursor: pointer;
-
+    transition-duration: 0.4s;
 }
 
 .play-buttons {
@@ -39,16 +34,15 @@ body {
 
 .play-button {
     background-color: white; 
-    color: black; 
     border-color: white;
-    border-style: solid;
     border-radius: 12px;
-    font-size: 36px;
+    border-style: solid;
+    color: black; 
     font-family: 'Russo One', sans-serif;
-    
+    font-size: 36px;
 }
-.play-button:hover {
 
+.play-button:hover {
     background-color: #ffff00;
     color: black;
 }
@@ -58,10 +52,10 @@ body {
     border-style: solid;
     margin-left: 13.5%;
 }
+
 .hit-button:hover {
     background-color: #ff0000;
     color: black;
-
 }
 
 .stand-button {
@@ -69,6 +63,7 @@ body {
     border-style: solid;
     margin-left: 2.5%;
 }
+
 .stand-button:hover {
     background-color: #00ff00;
     color: black;
@@ -81,19 +76,15 @@ body {
 }
 
 .next-button:hover {
-
     background-color: #ffff00;
     color: black;
 }
 
+/*
 .hidden-header {
     visibility: hidden;
 }
-
-.game {
-
-}
-
+*/
 
 .player-cards, .dealer-cards {
     margin-left: 65%;
