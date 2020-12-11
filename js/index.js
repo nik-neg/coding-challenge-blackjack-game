@@ -54,9 +54,9 @@ $( document ).ready(function() {
     resultDealer = extractResults("dealer");
     getNewCards("player", pathToCheck);
     resultPlayer = extractResults("player");
-
     checkWinner(resultDealer, resultPlayer);
 
+    console.log(cardDeck.length);
   });
 
   // function to generate and display the new cards
@@ -94,7 +94,6 @@ $( document ).ready(function() {
     } 
 
     displayPoints(opponent, cards);
-    console.log(cardDeck.length);
   }
 
   function putNewCardIntoListOfUsedCards(card) {
@@ -214,7 +213,9 @@ $( document ).ready(function() {
 
   // function to hit a new card
   function hitNewCard(opponent) {
-    //let newCard = (Math.floor(Math.random()*52)+1) % 53;
+    if (opponent === "dealer" && document.querySelector('.dealer-start-card-right') !== null) {
+      document.querySelector('.dealer-start-card-right').remove();
+    }
     let newCard = -1;
     newCard     = putNewCardIntoListOfUsedCards(newCard);
 
@@ -229,6 +230,7 @@ $( document ).ready(function() {
 
     let newCardTag = `<img class='${opponent}-start-card ${opponent}-start-card-new' src='images/cards/${newCard}.jpg' alt='no-red-pic'>`;
     $(`.${opponent}-cards`).prepend(newCardTag);
+    console.log(cardDeck.length);
   }
   // stand button listener
   document.querySelector(".stand-button").addEventListener("click", function() {
