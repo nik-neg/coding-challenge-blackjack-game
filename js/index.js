@@ -135,16 +135,16 @@ $( document ).ready(function() {
 
     if (resultDealer === resultPlayer && (resultPlayer === "Black Jack")) {
       gameOver = true;
-      $(".intro").append("<h1 class='winner'>Draw!</h1>")
+      $(".intro").append("<h1 class='winner'>Draw!</h1>");
       $(".dealer-points").css('color', 'white');
       $(".player-points").css('color', 'white');
     } else if (resultDealer === "Black Jack") {
-      $(".intro").append("<h1 class='winner'>Dealer wins!</h1>")
+      $(".intro").append("<h1 class='winner'>Dealer wins!</h1>");
       gameOver = true;
       $(".dealer-points").css('color', 'white');
       $(".player-points").css('color', 'red');
     } else if (resultPlayer === "Black Jack") {
-      $(".intro").append("<h1 class='winner'>Player wins!</h1>")
+      $(".intro").append("<h1 class='winner'>Player wins!</h1>");
       gameOver = true;
       $(".dealer-points").css('color', 'red');
       $(".player-points").css('color', 'white');
@@ -153,7 +153,7 @@ $( document ).ready(function() {
       $(".dealer-points").css('color', 'white');
       $(".player-points").css('color', 'red');
     } else if (((resultDealer < resultPlayer) && resultPlayer <= 21) || resultDealer > 21) {
-      $(".intro").append("<h1 class='winner'>Player wins!</h1>")
+      $(".intro").append("<h1 class='winner'>Player wins!</h1>");
       $(".dealer-points").css('color', 'red');
       $(".player-points").css('color', 'white');
     } else {
@@ -224,7 +224,7 @@ $( document ).ready(function() {
   function stand() {
     resultDealer = parseInt(extractResults("dealer"));
     resultPlayer = parseInt(extractResults("player"));
-    while(resultDealer <= resultPlayer && resultDealer <= 21 && resultPlayer < 21) {
+    while(resultDealer <= resultPlayer && resultDealer <= 21 && resultPlayer <= 21) {
       hitNewCard("dealer");
       resultDealer = extractResults("dealer");
     }
