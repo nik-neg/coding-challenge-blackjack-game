@@ -235,7 +235,14 @@ $( document ).ready(function() {
   // stand button listener
   document.querySelector(".stand-button").addEventListener("click", function() {
     playersTurn = false;
-    if(!startOfGame && extractResults("dealer") <= 20 && !gameOver) {
+
+    let dealerPoints = (extractResults("dealer"));
+    let playerPoints = (extractResults("player"));
+
+    // ( (dealerPoints <= dealerBound && dealerPoints >= playerPoints ) || (dealerPoints > dealerBound && dealerPoints < playerPoints) )
+
+    if(!startOfGame && !gameOver) {
+      console.log("hit stand")
       stand();
     }
   });
@@ -264,9 +271,12 @@ $( document ).ready(function() {
   function stand() {
     resultDealer = parseInt(extractResults("dealer"));
     resultPlayer = parseInt(extractResults("player"));
-    while(resultDealer <= resultPlayer && resultDealer <= 21 && resultPlayer <= 21) {
+    let dealerBound = 17;
+    let hitCardsForDealer =  ( (resultDealer < dealerBound && resultDealer >= resultDealer ) || (resultDealer > dealerBound && resultDealer < resultDealer) );
+    while(hitCardsForDealer) { //resultDealer <= resultPlayer && resultDealer <= 21 && resultPlayer <= 21) {
       hitNewCard("dealer");
       resultDealer = extractResults("dealer");
+      hitCardsForDealer =  ( (resultDealer < dealerBound && resultDealer >= resultDealer ) || (resultDealer > dealerBound && resultDealer < resultDealer) );
     }
     checkWinner(resultDealer, resultPlayer);
     resultDealer = 0;
