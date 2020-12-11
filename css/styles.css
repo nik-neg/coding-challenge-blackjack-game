@@ -80,12 +80,6 @@ body {
     color: black;
 }
 
-/*
-.hidden-header {
-    visibility: hidden;
-}
-*/
-
 .player-cards, .dealer-cards {
     margin-left: 65%;
     visibility: hidden;

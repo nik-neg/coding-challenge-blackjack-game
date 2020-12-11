@@ -132,8 +132,6 @@ $( document ).ready(function() {
     if(resultPlayer !== "Black Jack") {
       resultPlayer = parseInt(resultPlayer);
     }
-    //console.log(typeof resultDealer, resultDealer)
-    //console.log(typeof resultPlayer, resultPlayer)
 
     if (resultDealer === resultPlayer && (resultPlayer === "Black Jack")) {
       gameOver = true;
@@ -188,7 +186,6 @@ $( document ).ready(function() {
     } else {
       resultPlayer = parseInt(extractResults(opponent)) + defineAceValueWhenHit(); 
     }
-    //console.log(`hit stand ${opponent} `+resultPlayer)
 
     $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${resultPlayer}`);
 
@@ -198,10 +195,7 @@ $( document ).ready(function() {
   // stand button listener
   document.querySelector(".stand-button").addEventListener("click", function() {
     playersTurn = false;
-    //console.log(!startOfGame)
-    //console.log(!gameOver)
     if(!startOfGame && extractResults("dealer") <= 20 && !gameOver) {
-      //console.log("Stand");
       stand();
     }
   });
@@ -219,7 +213,7 @@ $( document ).ready(function() {
   // same as above, but this function also generically serves the dealer when the player chooses stand 
   function defineAceValueWhenHit() {
     if (
-      confirm(`You have an Ace. Do you want to treat the Ace as 11? Then please click 'ok', otherwise 'abort'' for 1.`)) {
+      confirm(`Dealer has an Ace. Do you want to treat the Ace as 11? Then please click 'ok', otherwise 'abort'' for 1.`)) {
       return 11;
     } else {
       return 1;
@@ -230,11 +224,7 @@ $( document ).ready(function() {
   function stand() {
     resultDealer = parseInt(extractResults("dealer"));
     resultPlayer = parseInt(extractResults("player"));
-    //console.log(resultDealer, resultPlayer)
-    //console.log(parseInt(resultDealer) <= 21)
-    //console.log(resultDealer <= resultPlayer && resultDealer <= 21)
     while(resultDealer <= resultPlayer && resultDealer <= 21 && resultPlayer < 21) {
-      //console.log("hit stand dealer")
       hitNewCard("dealer");
       resultDealer = extractResults("dealer");
     }
