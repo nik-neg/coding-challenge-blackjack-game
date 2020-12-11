@@ -165,7 +165,7 @@ $( document ).ready(function() {
 
   // hit button listener
   document.querySelector(".hit-button").addEventListener("click", function() {
-    if(!startOfGame && extractResults("player") <= 20 && playersTurn) {
+    if(!startOfGame && !gameOver && extractResults("player") <= 20 && playersTurn) {
       // hit new card
       hitNewCard("player");
 
