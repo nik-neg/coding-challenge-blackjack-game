@@ -18,6 +18,7 @@ $( document ).ready(function() {
   let startOfGame  = true;
   let resultDealer = 0;
   let resultPlayer = 0;
+  let cardDeck     = []
 
   // next button listener
   document.querySelector(".next-button").addEventListener("click", function() {
@@ -25,6 +26,7 @@ $( document ).ready(function() {
     resetResults("dealer");
     gameOver    = false;
     playersTurn = true;
+    cardDeck    = []
 
     // removes images after hit and stand for the next game
     let addedImages = document.querySelectorAll('.player-start-card-new');
@@ -60,8 +62,18 @@ $( document ).ready(function() {
   // function to generate and display the new cards
   function getNewCards(opponent, pathToCheck) {
     // get new cards
-    let leftCard = (Math.floor(Math.random()*52)+1) % 53;
-    let rightCard = (Math.floor(Math.random()*52)+1) % 53;
+    let leftCard = -1;
+    leftCard = putNewCardIntoListOfUsedCards(leftCard);
+
+    if (opponent === "player") {
+      let rightCard = -1;
+      rightCard = putNewCardIntoListOfUsedCards(rightCard);
+    }
+
+    // set points for player
+    let leftCardValue  = mapNumberToCardValue(leftCard);
+    let cards = []
+    cards[0]  = leftCardValue;
 
     // get path of cards
     let directoryPathOfImage = document.querySelector(`.${opponent}-start-card`).src;
@@ -70,14 +82,30 @@ $( document ).ready(function() {
     let newPath = "";
     newPath = directoryPathOfImage.slice(0, directoryPathOfImage.indexOf(pathToCheck))+"cards/";
     document.querySelector(`.${opponent}-start-card-left`).src  = newPath+leftCard+".jpg";
-    document.querySelector(`.${opponent}-start-card-right`).src = newPath+rightCard+".jpg";
+    
+    
+    if (opponent === "player") {
+      rightCard = (Math.floor(Math.random()*52)+1) % 53;
+      document.querySelector(`.${opponent}-start-card-right`).src = newPath+rightCard+".jpg";
+      let rigthCardValue = mapNumberToCardValue(rightCard);
+      cards[1]  = rigthCardValue;
+      // option for ace
+      //displayPoints(opponent, leftCardValue, rigthCardValue); // refactoring to array
+    } 
 
-    // set points
-    let leftCardValue  = mapNumberToCardValue(leftCard);
-    let rigthCardValue = mapNumberToCardValue(rightCard);
+    displayPoints(opponent, cards);
+    console.log(cardDeck.length);
+  }
 
-    // option for ace
-    displayPoints(opponent, leftCardValue, rigthCardValue);
+  function putNewCardIntoListOfUsedCards(card) {
+    while(!cardDeck.includes(card)) {
+      card = (Math.floor(Math.random()*52)+1) % 53;
+      if (!cardDeck.includes(card)) {
+        cardDeck.push(card);
+        break;
+      }
+    }
+    return card;
   }
 
   // the card are named regarding their indizes -1 e.g: 1-4 is two, 5-8 is three and so on
@@ -98,26 +126,34 @@ $( document ).ready(function() {
   }
 
   // function to display the values and differ the ace value
-  function displayPoints(opponent, leftCardValue, rigthCardValue) {
-    let points = leftCardValue+rigthCardValue;
-    if ((leftCardValue === 10 && rigthCardValue ==="ace") || (leftCardValue === "ace" && rigthCardValue === 10)) {
+  function displayPoints(opponent, cards) {
+    let points = 0;
+    if (cards.length === 2) {
+      points = cards[0]+cards[1]; // player
+
+    } else {
+      points = cards[0]; // dealer
+    }
+    /*
+    if ((cards[0] === 10 && cards[1] ==="ace") || (cards[0] === "ace" && cards[1] === 10)) {
       points = "Black Jack";
     } else {
-        if (leftCardValue === "ace" && opponent === "player") {
-          leftCardValue = defineAceValue(leftCardValue, rigthCardValue);
+        if (cards[0] === "ace" && opponent === "player") {
+          cards[0] = defineAceValue(cards[0], cards[1]);
         }
-        if (rigthCardValue === "ace" && opponent === "player") {
-          rigthCardValue = defineAceValue(rigthCardValue, leftCardValue);
+        if (cards[1] === "ace" && opponent === "player") {
+          cards[1] = defineAceValue(cards[0], cards[1]);
         }
         // for dealer
-        if (rigthCardValue === "ace" && opponent === "dealer") {
-          rigthCardValue = 11;
+        if (cards[0] === "ace" && opponent === "dealer") {
+          cards[0] = 11;
         }
-        if (leftCardValue === "ace" && opponent === "dealer") {
-          leftCardValue = 11;
+        if (cards[1] === "ace" && opponent === "dealer") {
+          cards[1] = 11;
         }
-        points = leftCardValue+rigthCardValue;
+        points = cards[0]+cards[1];
       }
+      */
     $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${points}`);
   }
 
@@ -173,12 +209,14 @@ $( document ).ready(function() {
       resultPlayer = extractResults("player");
       checkWinner(resultDealer, resultPlayer);
     }
+    console.log(cardDeck.length);
   });
 
   // function to hit a new card
   function hitNewCard(opponent) {
-    let pathToCheck = "cards";
-    let newCard = (Math.floor(Math.random()*52)+1) % 53;
+    //let newCard = (Math.floor(Math.random()*52)+1) % 53;
+    let newCard = -1;
+    newCard     = putNewCardIntoListOfUsedCards(newCard);
 
     let resultPlayer = 0;
     if (mapNumberToCardValue(newCard) !== "ace") {
