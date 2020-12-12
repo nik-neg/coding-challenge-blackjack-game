@@ -25,8 +25,8 @@ $( document ).ready(function() {
   let resultDealer = 0;
   let resultPlayer = 0;
   let cardDeck     = []
-  let WINBOUND     = 21;
-  let rememberAces = []; // list or number of aces for recalculation
+  let winThreshold     = 21;
+  let cardDict     = {"player": [], "dealer": []}
 
 
 
@@ -39,8 +39,9 @@ $( document ).ready(function() {
 
     resetResults("player");
     resetResults("dealer");
-    playersTurn = true;
-    cardDeck    = []
+    playersTurn  = true;
+    cardDeck     = []
+    cardDict     = {"player": [], "dealer": []}
  
 
     // removes images after hit and stand for the next game
@@ -73,6 +74,7 @@ $( document ).ready(function() {
     startOfGame = false;
 
     //console.log(cardDeck.length);
+    console.log(cardDict)
   });
 
   function removeDealersCoveredCard() {
@@ -114,6 +116,9 @@ $( document ).ready(function() {
       document.querySelector(`.${opponent}-start-card-left`).src = newPath+rightCard+".jpg";
       let rigthCardValue = mapNumberToCardValue(rightCard);
       cards[1]  = rigthCardValue;
+
+      // put cards into the dictionary to recalculate aces if neccassary
+      rememberCards(opponent, rigthCardValue)
     } 
     if (gameOver || STATE === "NEXT") {
       removeDealersCoveredCard();
@@ -128,8 +133,15 @@ $( document ).ready(function() {
     // calculate
     let pointsAceFlagCardsLength = calculate(extractResults(opponent), cards);
 
+    // put cards into the dictionary to recalculate aces if neccassary
+    rememberCards(opponent, leftCardValue)
+
     //display the cards
     displayPoints(opponent, pointsAceFlagCardsLength); 
+  }
+
+  function rememberCards(opponent, cardValue) {
+    cardDict[`${opponent}`].push(cardValue)
   }
 
   function putNewCardIntoListOfUsedCards(card) {
@@ -192,7 +204,7 @@ $( document ).ready(function() {
         points += card;
       } else {
         aceFlag = true;
-        if (points + 11 > WINBOUND) {
+        if (points + 11 > winThreshold) {
           points += 1;
         } else {
           points += 11;
@@ -286,9 +298,15 @@ $( document ).ready(function() {
       resultPlayer = parseInt(extractResults(opponent)) + defineAceValueWhenHit(); 
     }
     */
+   let mappenCardValue = mapNumberToCardValue(newCard);
     
     // calculate
-    let pointsAceFlagCardsLength = calculate(extractResults(opponent), [mapNumberToCardValue(newCard)]);
+    let pointsAceFlagCardsLength = calculate(extractResults(opponent), [mappenCardValue]);
+
+    // put cards into the dictionary to recalculate aces if neccassary
+    rememberCards(opponent, mappenCardValue);
+
+    pointsAceFlagCardsLength[0] = aceOption(opponent, mappenCardValue);
 
     /*
     $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${pointsAceFlagCardsLength[0]}`);
@@ -298,6 +316,7 @@ $( document ).ready(function() {
     let newCardTag = `<img class='${opponent}-start-card ${opponent}-start-card-new' src='images/cards/${newCard}.jpg' alt='no-red-pic'>`;
     $(`.${opponent}-cards`).prepend(newCardTag);
     //console.log(cardDeck.length);
+    console.log(cardDict)
   }
   // stand button listener
   document.querySelector(".stand-button").addEventListener("click", function() {
@@ -335,6 +354,19 @@ $( document ).ready(function() {
     } else {
       return 1;
     }
+  }
+
+  // function for recalculation of the ace if neccessary
+  function aceOption(opponent, newCard) {
+    let result = parseInt(extractResults(opponent));
+    let newResult = 0;
+    console.log(result, newCard, result + newCard)
+    if (result + newCard > winThreshold) {
+      cardDict[opponent].forEach(card => {
+        newResult += card !== "ace" ? card : 1;
+      })
+    }
+    return newResult;
   }
 
   // function to activate the hit part of the dealer if it is neccessary
