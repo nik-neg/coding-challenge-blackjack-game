@@ -1,7 +1,13 @@
 
 $( document ).ready(function() {
+
+  // state of the game
+  let STATE        = "START";
+
   // start button listener
   document.querySelector(".start-button").addEventListener("click", function() {
+  
+  STATE = "PLAY";
 
   document.querySelector('.header').remove();
 
@@ -20,13 +26,20 @@ $( document ).ready(function() {
   let resultPlayer = 0;
   let cardDeck     = []
 
+
+
   // next button listener
   document.querySelector(".next-button").addEventListener("click", function() {
+    if (STATE !== "PLAY" && STATE !== "NEXT") {
+      return;
+    }
+    STATE = "NEXT";
+
     resetResults("player");
     resetResults("dealer");
-    gameOver    = false;
     playersTurn = true;
     cardDeck    = []
+ 
 
     // removes images after hit and stand for the next game
     let addedImages = document.querySelectorAll('.player-start-card-new');
@@ -45,22 +58,33 @@ $( document ).ready(function() {
     let pathToCheck = "";
     if(startOfGame) {
       pathToCheck = "illustration";
-      startOfGame = false;
+
     } else {
       pathToCheck = "cards"
     }
     
-    getNewCards("dealer", pathToCheck);
+    console.log(gameOver)
+
+    getNextCards("dealer", pathToCheck);
+    if (gameOver) {
+      let opponent = "dealer";
+      let newCardTag = `<img class='${opponent}-start-card ${opponent}-start-card-right' src='images/illustration/Red_back.jpg' alt='no-red-pic'>`;
+      $(`.${opponent}-cards`).prepend(newCardTag);
+      gameOver    = false;
+    }
     resultDealer = extractResults("dealer");
-    getNewCards("player", pathToCheck);
+    getNextCards("player", pathToCheck);
     resultPlayer = extractResults("player");
     checkWinner(resultDealer, resultPlayer);
+ 
+
+    startOfGame = false;
 
     console.log(cardDeck.length);
   });
 
   // function to generate and display the new cards
-  function getNewCards(opponent, pathToCheck) {
+  function getNextCards(opponent, pathToCheck) {
     // get new cards
     let leftCard = -1;
     leftCard = putNewCardIntoListOfUsedCards(leftCard);
@@ -77,21 +101,27 @@ $( document ).ready(function() {
 
     // get path of cards
     let directoryPathOfImage = document.querySelector(`.${opponent}-start-card`).src;
+    console.log(directoryPathOfImage)
+
+    checkCoveredCards = "illustration";
+    if (directoryPathOfImage.indexOf(checkCoveredCards) !== -1) {
+      pathToCheck = checkCoveredCards;
+    }
     
     // set new cards to the path
     let newPath = "";
     newPath = directoryPathOfImage.slice(0, directoryPathOfImage.indexOf(pathToCheck))+"cards/";
-    document.querySelector(`.${opponent}-start-card-left`).src  = newPath+leftCard+".jpg";
-    
     
     if (opponent === "player") {
       rightCard = (Math.floor(Math.random()*52)+1) % 53;
-      document.querySelector(`.${opponent}-start-card-right`).src = newPath+rightCard+".jpg";
+      document.querySelector(`.${opponent}-start-card-left`).src = newPath+rightCard+".jpg";
       let rigthCardValue = mapNumberToCardValue(rightCard);
       cards[1]  = rigthCardValue;
       // option for ace
       //displayPoints(opponent, leftCardValue, rigthCardValue); // refactoring to array
     } 
+
+    document.querySelector(`.${opponent}-start-card-right`).src  = newPath+leftCard+".jpg";
 
     displayPoints(opponent, cards);
   }
@@ -200,6 +230,11 @@ $( document ).ready(function() {
 
   // hit button listener
   document.querySelector(".hit-button").addEventListener("click", function() {
+    STATE = "HIT";
+    if (STATE !== "HIT" && STATE !== "NEXT") {
+      return;
+    }
+
     if(!startOfGame && !gameOver && extractResults("player") <= 20 && playersTurn) {
       // hit new card
       hitNewCard("player");
@@ -208,14 +243,11 @@ $( document ).ready(function() {
       resultPlayer = extractResults("player");
       checkWinner(resultDealer, resultPlayer);
     }
-    console.log(cardDeck.length);
+    //console.log(cardDeck.length);
   });
 
   // function to hit a new card
   function hitNewCard(opponent) {
-    if (opponent === "dealer" && document.querySelector('.dealer-start-card-right') !== null) {
-      document.querySelector('.dealer-start-card-right').remove();
-    }
     let newCard = -1;
     newCard     = putNewCardIntoListOfUsedCards(newCard);
 
@@ -230,10 +262,15 @@ $( document ).ready(function() {
 
     let newCardTag = `<img class='${opponent}-start-card ${opponent}-start-card-new' src='images/cards/${newCard}.jpg' alt='no-red-pic'>`;
     $(`.${opponent}-cards`).prepend(newCardTag);
-    console.log(cardDeck.length);
+    //console.log(cardDeck.length);
   }
   // stand button listener
   document.querySelector(".stand-button").addEventListener("click", function() {
+    if (STATE !== "HIT" && STATE !== "NEXT") {
+      return;
+    }
+    STATE = "STAND";
+
     playersTurn = false;
 
     let dealerPoints = (extractResults("dealer"));
@@ -269,17 +306,22 @@ $( document ).ready(function() {
 
   // function to activate the hit part of the dealer if it is neccessary
   function stand() {
+    if (document.querySelector('.dealer-start-card-left') !== null) {
+      document.querySelector('.dealer-start-card-left').remove();
+    }
     resultDealer = parseInt(extractResults("dealer"));
     resultPlayer = parseInt(extractResults("player"));
     let dealerBound = 17;
-    let hitCardsForDealer =  ( (resultDealer < dealerBound && resultDealer >= resultDealer ) || (resultDealer > dealerBound && resultDealer < resultDealer) );
+    let hitCardsForDealer =  ( (resultDealer < dealerBound) || (resultDealer >= dealerBound && resultDealer < resultPlayer) );
     while(hitCardsForDealer) { //resultDealer <= resultPlayer && resultDealer <= 21 && resultPlayer <= 21) {
       hitNewCard("dealer");
       resultDealer = extractResults("dealer");
-      hitCardsForDealer =  ( (resultDealer < dealerBound && resultDealer >= resultDealer ) || (resultDealer > dealerBound && resultDealer < resultDealer) );
+      hitCardsForDealer =  ( (resultDealer < dealerBound) || (resultDealer >= dealerBound && resultDealer < resultPlayer) );
     }
     checkWinner(resultDealer, resultPlayer);
+    STATE        = "NEXT";
     resultDealer = 0;
     resultPlayer = 0;
+    gameOver     = true;
   }
 });
