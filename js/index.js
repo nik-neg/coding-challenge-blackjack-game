@@ -25,6 +25,8 @@ $( document ).ready(function() {
   let resultDealer = 0;
   let resultPlayer = 0;
   let cardDeck     = []
+  let WINBOUND     = 21;
+  let rememberAces = []; // list or number of aces for recalculation
 
 
 
@@ -68,8 +70,9 @@ $( document ).ready(function() {
     getNextCards("player", pathToCheck);
     resultPlayer = extractResults("player");
     checkWinner(resultDealer, resultPlayer);
- 
     startOfGame = false;
+
+    console.log(cardDeck.length);
   });
 
   function removeDealersCoveredCard() {
@@ -111,7 +114,7 @@ $( document ).ready(function() {
       document.querySelector(`.${opponent}-start-card-left`).src = newPath+rightCard+".jpg";
       let rigthCardValue = mapNumberToCardValue(rightCard);
       cards[1]  = rigthCardValue;
-      // option for ace
+
       //displayPoints(opponent, leftCardValue, rigthCardValue); // refactoring to array
     } 
     if (gameOver || STATE === "NEXT") {
@@ -124,7 +127,11 @@ $( document ).ready(function() {
     }
     document.querySelector(`.${opponent}-start-card-right`).src  = newPath+leftCard+".jpg";
 
-    displayPoints(opponent, cards);
+    // calculate
+    let pointsAceFlagCardsLength = calculate(extractResults(opponent), cards);
+
+    //display the cards
+    displayPoints(opponent, pointsAceFlagCardsLength); 
   }
 
   function putNewCardIntoListOfUsedCards(card) {
@@ -136,6 +143,7 @@ $( document ).ready(function() {
       }
     }
     return card;
+    //return mapNumberToCardValue(card);
   }
 
   // the card are named regarding their indizes -1 e.g: 1-4 is two, 5-8 is three and so on
@@ -156,35 +164,42 @@ $( document ).ready(function() {
   }
 
   // function to display the values and differ the ace value
-  function displayPoints(opponent, cards) {
-    let points = 0;
-    if (cards.length === 2) {
-      points = cards[0]+cards[1]; // player
-
-    } else {
-      points = cards[0]; // dealer
-    }
-    /*
-    if ((cards[0] === 10 && cards[1] ==="ace") || (cards[0] === "ace" && cards[1] === 10)) {
-      points = "Black Jack";
-    } else {
-        if (cards[0] === "ace" && opponent === "player") {
-          cards[0] = defineAceValue(cards[0], cards[1]);
-        }
-        if (cards[1] === "ace" && opponent === "player") {
-          cards[1] = defineAceValue(cards[0], cards[1]);
-        }
-        // for dealer
-        if (cards[0] === "ace" && opponent === "dealer") {
-          cards[0] = 11;
-        }
-        if (cards[1] === "ace" && opponent === "dealer") {
-          cards[1] = 11;
-        }
-        points = cards[0]+cards[1];
+  function displayPoints(opponent, pointsAceFlagCardsLength) {
+    let result = 0;
+    if (pointsAceFlagCardsLength[0] === 21 && pointsAceFlagCardsLength[1] && pointsAceFlagCardsLength[2]) {
+      result = "Black Jack";
+      $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${result}`);
+      if (extractResults("dealer") >= 10) {
+        stand();
       }
-      */
-    $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${points}`);
+    } else if (pointsAceFlagCardsLength[0] === 21) {
+      $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${result}`);
+      stand();
+    } else {
+      result = pointsAceFlagCardsLength[0];
+    }
+    
+    $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${result}`);
+  }
+
+  function calculate(actualPoints, cards) {
+    //cards = ["ace", "ace"] // test
+    let points = parseInt(actualPoints);
+    let aceFlag = false;
+
+    cards.forEach(card => {
+      if (card !== "ace") {
+        points += card;
+      } else {
+        aceFlag = true;
+        if (points + 11 > WINBOUND) {
+          points += 1;
+        } else {
+          points += 11;
+        }
+      }
+    })
+    return [points, aceFlag, cards.length === 2]
   }
 
   // function to check the temporary winner
@@ -253,8 +268,6 @@ $( document ).ready(function() {
       STATE        = "STAND";
       stand();
     }
-
-    console.log(gameOver);
   });
 
   // function to hit a new card
@@ -262,14 +275,22 @@ $( document ).ready(function() {
     let newCard = -1;
     newCard     = putNewCardIntoListOfUsedCards(newCard);
 
+    /*
     let resultPlayer = 0;
     if (mapNumberToCardValue(newCard) !== "ace") {
       resultPlayer = parseInt(extractResults(opponent)) + parseInt(mapNumberToCardValue(newCard));
     } else {
       resultPlayer = parseInt(extractResults(opponent)) + defineAceValueWhenHit(); 
     }
+    */
+    
+    // calculate
+    let pointsAceFlagCardsLength = calculate(extractResults(opponent), [mapNumberToCardValue(newCard)]);
 
-    $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${resultPlayer}`);
+    /*
+    $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${pointsAceFlagCardsLength[0]}`);
+    */
+    displayPoints(opponent, pointsAceFlagCardsLength)
 
     let newCardTag = `<img class='${opponent}-start-card ${opponent}-start-card-new' src='images/cards/${newCard}.jpg' alt='no-red-pic'>`;
     $(`.${opponent}-cards`).prepend(newCardTag);
@@ -323,7 +344,7 @@ $( document ).ready(function() {
     resultPlayer = parseInt(extractResults("player"));
     let dealerBound = 17;
     let hitCardsForDealer =  ( (resultDealer < dealerBound) || (resultDealer >= dealerBound && resultDealer <= resultPlayer) );
-    while(hitCardsForDealer) { //resultDealer <= resultPlayer && resultDealer <= 21 && resultPlayer <= 21) {
+    while(hitCardsForDealer) {
       hitNewCard("dealer");
       resultDealer = extractResults("dealer");
       hitCardsForDealer =  ( (resultDealer < dealerBound) || (resultDealer >= dealerBound && resultDealer <= resultPlayer) );
