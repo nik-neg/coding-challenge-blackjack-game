@@ -30,7 +30,7 @@ $( document ).ready(function() {
 
   // next button listener
   document.querySelector(".next-button").addEventListener("click", function() {
-    if (STATE !== "PLAY" && STATE !== "NEXT") {
+    if (STATE !== "PLAY" && STATE !== "NEXT" && !gameOver) {
       return;
     }
     STATE = "NEXT";
@@ -62,8 +62,6 @@ $( document ).ready(function() {
     } else {
       pathToCheck = "cards"
     }
-    
-    console.log(gameOver)
 
     getNextCards("dealer", pathToCheck);
     resultDealer = extractResults("dealer");
@@ -71,10 +69,7 @@ $( document ).ready(function() {
     resultPlayer = extractResults("player");
     checkWinner(resultDealer, resultPlayer);
  
-
     startOfGame = false;
-
-    console.log(cardDeck.length);
   });
 
   function removeDealersCoveredCard() {
@@ -101,7 +96,6 @@ $( document ).ready(function() {
 
     // get path of cards
     let directoryPathOfImage = document.querySelector(`.${opponent}-start-card`).src;
-    console.log(directoryPathOfImage)
 
     checkCoveredCards = "illustration";
     if (directoryPathOfImage.indexOf(checkCoveredCards) !== -1) {
@@ -238,7 +232,7 @@ $( document ).ready(function() {
   // hit button listener
   document.querySelector(".hit-button").addEventListener("click", function() {
     STATE = "HIT";
-    if (STATE !== "HIT" && STATE !== "NEXT") {
+    if (STATE !== "HIT" && STATE !== "NEXT" || gameOver) {
       return;
     }
 
@@ -250,7 +244,17 @@ $( document ).ready(function() {
       resultPlayer = extractResults("player");
       checkWinner(resultDealer, resultPlayer);
     }
-    //console.log(cardDeck.length);
+
+    // player busts
+    if (resultPlayer > 21 ) {
+      STATE        = "NEXT";
+      gameOver     = true;
+    } else if (resultPlayer === 21) {
+      STATE        = "STAND";
+      stand();
+    }
+
+    console.log(gameOver);
   });
 
   // function to hit a new card
@@ -269,11 +273,11 @@ $( document ).ready(function() {
 
     let newCardTag = `<img class='${opponent}-start-card ${opponent}-start-card-new' src='images/cards/${newCard}.jpg' alt='no-red-pic'>`;
     $(`.${opponent}-cards`).prepend(newCardTag);
-    //console.log(cardDeck.length);
+    console.log(cardDeck.length);
   }
   // stand button listener
   document.querySelector(".stand-button").addEventListener("click", function() {
-    if (STATE !== "HIT" && STATE !== "NEXT") {
+    if (STATE !== "HIT" && STATE !== "NEXT" || gameOver) {
       return;
     }
     STATE = "STAND";
@@ -314,15 +318,15 @@ $( document ).ready(function() {
   // function to activate the hit part of the dealer if it is neccessary
   function stand() {
     removeDealersCoveredCard();
-    
+
     resultDealer = parseInt(extractResults("dealer"));
     resultPlayer = parseInt(extractResults("player"));
     let dealerBound = 17;
-    let hitCardsForDealer =  ( (resultDealer < dealerBound) || (resultDealer >= dealerBound && resultDealer < resultPlayer) );
+    let hitCardsForDealer =  ( (resultDealer < dealerBound) || (resultDealer >= dealerBound && resultDealer <= resultPlayer) );
     while(hitCardsForDealer) { //resultDealer <= resultPlayer && resultDealer <= 21 && resultPlayer <= 21) {
       hitNewCard("dealer");
       resultDealer = extractResults("dealer");
-      hitCardsForDealer =  ( (resultDealer < dealerBound) || (resultDealer >= dealerBound && resultDealer < resultPlayer) );
+      hitCardsForDealer =  ( (resultDealer < dealerBound) || (resultDealer >= dealerBound && resultDealer <= resultPlayer) );
     }
     checkWinner(resultDealer, resultPlayer);
     STATE        = "NEXT";
