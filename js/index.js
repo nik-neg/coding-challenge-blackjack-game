@@ -66,12 +66,6 @@ $( document ).ready(function() {
     console.log(gameOver)
 
     getNextCards("dealer", pathToCheck);
-    if (gameOver) {
-      let opponent = "dealer";
-      let newCardTag = `<img class='${opponent}-start-card ${opponent}-start-card-right' src='images/illustration/Red_back.jpg' alt='no-red-pic'>`;
-      $(`.${opponent}-cards`).prepend(newCardTag);
-      gameOver    = false;
-    }
     resultDealer = extractResults("dealer");
     getNextCards("player", pathToCheck);
     resultPlayer = extractResults("player");
@@ -82,6 +76,12 @@ $( document ).ready(function() {
 
     console.log(cardDeck.length);
   });
+
+  function removeDealersCoveredCard() {
+    if (document.querySelector('.dealer-start-card-left') !== null) {
+      document.querySelector('.dealer-start-card-left').remove();
+    }
+  }
 
   // function to generate and display the new cards
   function getNextCards(opponent, pathToCheck) {
@@ -120,7 +120,14 @@ $( document ).ready(function() {
       // option for ace
       //displayPoints(opponent, leftCardValue, rigthCardValue); // refactoring to array
     } 
+    if (gameOver || STATE === "NEXT") {
+      removeDealersCoveredCard();
 
+      let opponent = "dealer";
+      let newCardTag = `<img class='${opponent}-start-card ${opponent}-start-card-left' src='images/illustration/Red_back.jpg' alt='no-red-pic'>`;
+      $(`.${opponent}-cards`).prepend(newCardTag);
+      gameOver    = false;
+    }
     document.querySelector(`.${opponent}-start-card-right`).src  = newPath+leftCard+".jpg";
 
     displayPoints(opponent, cards);
@@ -306,9 +313,8 @@ $( document ).ready(function() {
 
   // function to activate the hit part of the dealer if it is neccessary
   function stand() {
-    if (document.querySelector('.dealer-start-card-left') !== null) {
-      document.querySelector('.dealer-start-card-left').remove();
-    }
+    removeDealersCoveredCard();
+    
     resultDealer = parseInt(extractResults("dealer"));
     resultPlayer = parseInt(extractResults("player"));
     let dealerBound = 17;
