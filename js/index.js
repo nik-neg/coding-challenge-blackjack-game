@@ -165,7 +165,7 @@ $( document ).ready(function() {
   // function to get the actual values
   function extractResults(opponent) {
     let result = $(`.${opponent}-points`).text();
-    return result.slice(8, result.length);
+    return parseInt(result.slice(8, result.length));
   }
 
   // function to reset the values
@@ -196,7 +196,7 @@ $( document ).ready(function() {
 
   function calculate(actualPoints, cards) {
     //cards = ["ace", "ace"] // test
-    let points = parseInt(actualPoints);
+    let points = actualPoints;
     let aceFlag = false;
 
     cards.forEach(card => {
@@ -339,7 +339,7 @@ $( document ).ready(function() {
 
   // function for recalculation of the ace if neccessary
   function aceOption(opponent, newCard) { // mappenCardValue
-    let result    = parseInt(extractResults(opponent));
+    let result    = extractResults(opponent);
     let newResult = 0;
     newCard       = newCard === "ace" ? 11 : newCard;
     console.log(result, newCard, result + newCard)
@@ -348,7 +348,7 @@ $( document ).ready(function() {
         newResult += card !== "ace" ? card : 1;
       })
     } else {
-      newResult = parseInt(extractResults(opponent)) + newCard;
+      newResult = extractResults(opponent) + newCard;
     }
     return newResult;
   }
@@ -357,8 +357,8 @@ $( document ).ready(function() {
   function stand() {
     removeDealersCoveredCard();
 
-    resultDealer = parseInt(extractResults("dealer"));
-    resultPlayer = parseInt(extractResults("player"));
+    resultDealer = extractResults("dealer");
+    resultPlayer = extractResults("player");
     let dealerBound = 17;
     let hitCardsForDealer =  ( (resultDealer < dealerBound) || (resultDealer >= dealerBound && resultDealer <= resultPlayer) );
     while(hitCardsForDealer) {
