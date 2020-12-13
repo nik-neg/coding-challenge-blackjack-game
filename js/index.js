@@ -311,6 +311,7 @@ $( document ).ready(function() {
     /*
     $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${pointsAceFlagCardsLength[0]}`);
     */
+    console.log(pointsAceFlagCardsLength)
     displayPoints(opponent, pointsAceFlagCardsLength)
 
     let newCardTag = `<img class='${opponent}-start-card ${opponent}-start-card-new' src='images/cards/${newCard}.jpg' alt='no-red-pic'>`;
@@ -336,35 +337,18 @@ $( document ).ready(function() {
     }
   });
 
-  // function which asks the player how the Ace should be treated
-  function defineAceValue(cardValue, otherCardValue) {
-    if (
-      confirm(`You have ${cardValue} and ${otherCardValue}. Do you want to treat the Ace as 11? Then please click 'yes', otherwise no for 1.`)) {
-      return 11;
-    } else {
-      return 1;
-    }
-  }
-
-  // same as above, but this function also generically serves the dealer when the player chooses stand 
-  function defineAceValueWhenHit() {
-    if (
-      confirm(`Dealer has an Ace. Do you want to treat the Ace as 11? Then please click 'ok', otherwise 'abort'' for 1.`)) {
-      return 11;
-    } else {
-      return 1;
-    }
-  }
-
   // function for recalculation of the ace if neccessary
-  function aceOption(opponent, newCard) {
-    let result = parseInt(extractResults(opponent));
+  function aceOption(opponent, newCard) { // mappenCardValue
+    let result    = parseInt(extractResults(opponent));
     let newResult = 0;
+    newCard       = newCard === "ace" ? 11 : newCard;
     console.log(result, newCard, result + newCard)
     if (result + newCard > winThreshold) {
       cardDict[opponent].forEach(card => {
         newResult += card !== "ace" ? card : 1;
       })
+    } else {
+      newResult = parseInt(extractResults(opponent)) + newCard;
     }
     return newResult;
   }
