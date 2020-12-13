@@ -360,11 +360,11 @@ $( document ).ready(function() {
     resultDealer = extractResults("dealer");
     resultPlayer = extractResults("player");
     let dealerBound = 17;
-    let hitCardsForDealer =  ( (resultDealer < dealerBound) || (resultDealer >= dealerBound && resultDealer <= resultPlayer) );
+    let hitCardsForDealer =  (resultDealer < dealerBound) // ( (resultDealer < dealerBound) || (resultDealer >= dealerBound && resultDealer <= resultPlayer) );
     while(hitCardsForDealer) {
       hitNewCard("dealer");
       resultDealer = extractResults("dealer");
-      hitCardsForDealer =  ( (resultDealer < dealerBound) || (resultDealer >= dealerBound && resultDealer <= resultPlayer) );
+      hitCardsForDealer =  (resultDealer < dealerBound)  // ( (resultDealer < dealerBound) || (resultDealer >= dealerBound && resultDealer <= resultPlayer) );
     }
     console.log(resultDealer, resultPlayer)
     checkWinner(resultDealer, resultPlayer);
