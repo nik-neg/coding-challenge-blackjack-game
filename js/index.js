@@ -37,7 +37,7 @@ $( document ).ready(function() {
       return;
     }
     STATE = "NEXT";
-
+    console.log("---------------------------------")
     resetResults("player");
     resetResults("dealer");
     playersTurn  = true;
@@ -76,7 +76,7 @@ $( document ).ready(function() {
     checkWinner(resultDealer, resultPlayer);
     startOfGame = false;
 
-    //console.log(cardDeck.length);
+    console.log(cardDeck.length);
   });
 
   function removeDealersCoveredCard() {
@@ -90,11 +90,7 @@ $( document ).ready(function() {
     // get new cards
     let leftCard = -1;
     leftCard = putNewCardIntoListOfUsedCards(leftCard);
-
-    if (opponent === "player") {
-      let rightCard = -1;
-      rightCard = putNewCardIntoListOfUsedCards(rightCard);
-    }
+    console.log("left card: "+leftCard)
 
     // set points for player
     let leftCardValue  = mapNumberToCardValue(leftCard);
@@ -114,7 +110,10 @@ $( document ).ready(function() {
     newPath = directoryPathOfImage.slice(0, directoryPathOfImage.indexOf(pathToCheck))+"cards/";
     
     if (opponent === "player") {
-      rightCard = (Math.floor(Math.random()*52)+1) % 53;
+      //rightCard = (Math.floor(Math.random()*52)+1) % 53;
+      let rightCard = -1;
+      rightCard = putNewCardIntoListOfUsedCards(rightCard);
+      console.log("right card: "+rightCard)
 
       document.querySelector(`.${opponent}-start-card-left`).src = newPath+rightCard+".jpg";
       let rigthCardValue = mapNumberToCardValue(rightCard);
@@ -123,6 +122,7 @@ $( document ).ready(function() {
       // put cards into the dictionary to recalculate aces if neccassary
       rememberCards(opponent, rigthCardValue)
     }
+
     if (gameOver || STATE === "NEXT") {
       removeDealersCoveredCard();
 
@@ -151,16 +151,19 @@ $( document ).ready(function() {
     cardDict[`${opponent}`].push(cardValue)
   }
 
-  function putNewCardIntoListOfUsedCards(card) {
+  function putNewCardIntoListOfUsedCards(card) { // Fehler ?
     while(!cardDeck.includes(card)) {
       card = (Math.floor(Math.random()*52)+1) % 53;
       if (!cardDeck.includes(card)) {
+        console.log("pushed card: "+card)
         cardDeck.push(card);
         break;
       }
     }
-    return card;
-    //return mapNumberToCardValue(card);
+    console.log(cardDeck)
+    //cardDeck.forEach( card => { console.log(mapNumberToCardValue(card))})
+    console.log("returned card: "+cardDeck[cardDeck.length-1])
+    return cardDeck[cardDeck.length-1];
   }
 
   // the card are named regarding their indizes -1 e.g: 1-4 is two, 5-8 is three and so on
@@ -184,23 +187,17 @@ $( document ).ready(function() {
 
   // function to display the values and differ the ace value
   function displayPoints(opponent, pointsAceFlagCardsLength) {
-    //console.log(pointsAceFlagCardsLength)
     let result = pointsAceFlagCardsLength[0];
     if (result === 21 && pointsAceFlagCardsLength[1] && pointsAceFlagCardsLength[2]) {
-      console.log("BJ")
       result = BLACKJACK;
       gameOver = true;
       $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${result}`);
 
-      console.log("disp: "+extractResults(opponent))
-
       if (extractResults("dealer") >= 10) { // if dealer also can hit a Black Jack
-        console.log("dealer hit for BJ")
         stand();
       }
     }
     else if (result === 21) { // after next 10 or 11 to BJ makes output not BJ,
-      console.log("21")
       $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${result}`);
       stand();
     }
@@ -229,8 +226,6 @@ $( document ).ready(function() {
 
   // function to check the temporary winner
   function checkWinner(resultDealer, resultPlayer) {
-
-    console.log(resultDealer, resultPlayer)
 
     if(document.querySelector(".winner") !== null) {
       document.querySelector(".winner").remove();
@@ -311,16 +306,9 @@ $( document ).ready(function() {
   function hitNewCard(opponent) {
     let newCard = -1;
     newCard     = putNewCardIntoListOfUsedCards(newCard);
+    console.log(newCard);
 
-    /*
-    let resultPlayer = 0;
-    if (mapNumberToCardValue(newCard) !== "ace") {
-      resultPlayer = parseInt(extractResults(opponent)) + parseInt(mapNumberToCardValue(newCard));
-    } else {
-      resultPlayer = parseInt(extractResults(opponent)) + defineAceValueWhenHit(); 
-    }
-    */
-   let mappenCardValue = mapNumberToCardValue(newCard);
+    let mappenCardValue = mapNumberToCardValue(newCard);
     
     // calculate
     let pointsAceFlagCardsLength = calculate(extractResults(opponent), [mappenCardValue]);
@@ -334,8 +322,7 @@ $( document ).ready(function() {
 
     let newCardTag = `<img class='${opponent}-start-card ${opponent}-start-card-new' src='images/cards/${newCard}.jpg' alt='no-red-pic'>`;
     $(`.${opponent}-cards`).prepend(newCardTag);
-    //console.log(cardDeck.length);
-    //console.log(cardDict)
+    console.log(cardDeck.length);
   }
   // stand button listener
   document.querySelector(".stand-button").addEventListener("click", function() {
@@ -368,16 +355,10 @@ $( document ).ready(function() {
 
   // function to activate the hit part of the dealer if it is neccessary
   function stand() {
-    console.log("STAND")
-    //console.log(cardDict)
-
     removeDealersCoveredCard();
 
     resultDealer = extractResults("dealer");
     resultPlayer = extractResults("player");
-
-    console.log("after dealer hit for BJ")
-    console.log(resultDealer, resultPlayer) // if clause dealer has two cards and 21 ?
 
     let dealerBound = 17;
     let hitCardsForDealer =  (resultDealer < dealerBound)
@@ -387,8 +368,6 @@ $( document ).ready(function() {
       hitCardsForDealer =  (resultDealer < dealerBound)
     }
 
-    console.log("after while")
-    console.log(resultDealer, resultPlayer);
     console.log("------------------------------")
 
     checkWinner(resultDealer, resultPlayer);
