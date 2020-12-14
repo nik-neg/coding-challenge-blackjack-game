@@ -25,7 +25,8 @@ $( document ).ready(function() {
   let resultDealer = 0;
   let resultPlayer = 0;
   let cardDeck     = []
-  let winThreshold     = 21;
+  let winThreshold = 21;
+  let BLACKJACK    = "Black Jack";
   let cardDict     = {"player": [], "dealer": []}
 
 
@@ -73,8 +74,8 @@ $( document ).ready(function() {
     checkWinner(resultDealer, resultPlayer);
     startOfGame = false;
 
-    //console.log(cardDeck.length);
-    console.log(cardDict)
+    console.log(cardDeck.length);
+    //console.log(cardDict)
   });
 
   function removeDealersCoveredCard() {
@@ -119,7 +120,7 @@ $( document ).ready(function() {
 
       // put cards into the dictionary to recalculate aces if neccassary
       rememberCards(opponent, rigthCardValue)
-    } 
+    }
     if (gameOver || STATE === "NEXT") {
       removeDealersCoveredCard();
 
@@ -130,14 +131,20 @@ $( document ).ready(function() {
     }
     document.querySelector(`.${opponent}-start-card-right`).src  = newPath+leftCard+".jpg";
 
-    // calculate
-    let pointsAceFlagCardsLength = calculate(extractResults(opponent), cards);
+    //console.log(extractResults(opponent))
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    let pointsAceFlagCardsLength = null;
 
+    // calculate
+    pointsAceFlagCardsLength = calculate(extractResults(opponent), cards);
     // put cards into the dictionary to recalculate aces if neccassary
     rememberCards(opponent, leftCardValue)
 
+    console.log(pointsAceFlagCardsLength)
+
     //display the cards
     displayPoints(opponent, pointsAceFlagCardsLength); 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   }
 
   function rememberCards(opponent, cardValue) {
@@ -165,7 +172,7 @@ $( document ).ready(function() {
   // function to get the actual values
   function extractResults(opponent) {
     let result = $(`.${opponent}-points`).text();
-    return parseInt(result.slice(8, result.length));
+    return result.slice(8, result.length) !== BLACKJACK ? parseInt(result.slice(8, result.length)) : BLACKJACK;
   }
 
   // function to reset the values
@@ -178,14 +185,14 @@ $( document ).ready(function() {
     let result = pointsAceFlagCardsLength[0];
     if (result === 21 && pointsAceFlagCardsLength[1] && pointsAceFlagCardsLength[2]) {
       console.log("BJ")
-      result = "Black Jack";
+      result = BLACKJACK;
+      gameOver = true;
       $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${result}`);
       if (extractResults("dealer") >= 10) { // if dealer also can hit a Black Jack
         stand();
       }
-
     }
-    else if (result === 21) {
+    else if (result === 21) { // after next 10 or 11 to BJ makes output not BJ,
       console.log("21")
       $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${result}`);
       stand();
@@ -216,52 +223,69 @@ $( document ).ready(function() {
 
   // function to check the temporary winner
   function checkWinner(resultDealer, resultPlayer) {
+    console.log(resultDealer, resultPlayer)
     if(document.querySelector(".winner") !== null) {
       document.querySelector(".winner").remove();
     }
-    if(resultDealer !== "Black Jack") {
+    if(resultDealer !== BLACKJACK) {
       resultDealer = parseInt(resultDealer);
     }
-    if(resultPlayer !== "Black Jack") {
+    if(resultPlayer !== BLACKJACK) {
       resultPlayer = parseInt(resultPlayer);
     }
 
-    if (resultDealer === resultPlayer && (resultPlayer === "Black Jack")) {
+    let dealerColor = "red";
+    let playerColor = "red";
+    if (resultDealer === resultPlayer && (resultPlayer === BLACKJACK)) {
       gameOver = true;
       $(".intro").append("<h1 class='winner'>Draw!</h1>");
-      $(".dealer-points").css('color', 'white');
-      $(".player-points").css('color', 'white');
-    } else if (resultDealer === "Black Jack") {
+      //$(".dealer-points").css('color', 'white');
+      //$(".player-points").css('color', 'white');
+      dealerColor = "white";
+      playerColor = "white";
+    } else if (resultDealer === BLACKJACK) {
       $(".intro").append("<h1 class='winner'>Dealer wins!</h1>");
       gameOver = true;
-      $(".dealer-points").css('color', 'white');
-      $(".player-points").css('color', 'red');
-    } else if (resultPlayer === "Black Jack") {
+      //$(".dealer-points").css('color', 'white');
+      //$(".player-points").css('color', 'red');
+      dealerColor = "white";
+      playerColor = "red";
+    } else if (resultPlayer === BLACKJACK) {
       $(".intro").append("<h1 class='winner'>Player wins!</h1>");
       gameOver = true;
-      $(".dealer-points").css('color', 'red');
-      $(".player-points").css('color', 'white');
+      //$(".dealer-points").css('color', 'red');
+      //$(".player-points").css('color', 'white');
+      dealerColor = "red";
+      playerColor = "white";
     } else if (((resultDealer > resultPlayer) && resultDealer <= 21) || (resultPlayer > 21)) {
       $(".intro").append("<h1 class='winner'>Dealer wins!</h1>")
-      $(".dealer-points").css('color', 'white');
-      $(".player-points").css('color', 'red');
+      //$(".dealer-points").css('color', 'white');
+      //$(".player-points").css('color', 'red');
+      dealerColor = "white";
+      playerColor = "red";
     } else if (((resultDealer < resultPlayer) && resultPlayer <= 21) || resultDealer > 21) {
       $(".intro").append("<h1 class='winner'>Player wins!</h1>");
-      $(".dealer-points").css('color', 'red');
-      $(".player-points").css('color', 'white');
+      //$(".dealer-points").css('color', 'red');
+      //$(".player-points").css('color', 'white');
+      dealerColor = "red";
+      playerColor = "white";
     } else {
       $(".intro").append("<h1 class='winner'>Draw!</h1>")
-      $(".dealer-points").css('color', 'white');
-      $(".player-points").css('color', 'white');
+      //$(".dealer-points").css('color', 'white');
+      //$(".player-points").css('color', 'white');
+      dealerColor = "white";
+      playerColor = "white";
     }
+    $(".dealer-points").css('color', dealerColor);
+    $(".player-points").css('color', playerColor);
   }
 
   // hit button listener
   document.querySelector(".hit-button").addEventListener("click", function() {
-    STATE = "HIT";
-    if (STATE !== "HIT" && STATE !== "NEXT" || gameOver) {
+    if (STATE !== "HIT" && STATE !== "NEXT" || STATE === "START" || gameOver) {
       return;
     }
+    STATE = "HIT";
 
     if(!startOfGame && !gameOver && extractResults("player") <= 20 && playersTurn) {
       // hit new card
@@ -270,7 +294,7 @@ $( document ).ready(function() {
       resultDealer = extractResults("dealer");
       resultPlayer = extractResults("player");
 
-      console.log(resultPlayer)
+      //console.log(resultPlayer)
 
       checkWinner(resultDealer, resultPlayer);
     }
@@ -311,12 +335,12 @@ $( document ).ready(function() {
     /*
     $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${pointsAceFlagCardsLength[0]}`);
     */
-    console.log(pointsAceFlagCardsLength)
+    //console.log(pointsAceFlagCardsLength)
     displayPoints(opponent, pointsAceFlagCardsLength)
 
     let newCardTag = `<img class='${opponent}-start-card ${opponent}-start-card-new' src='images/cards/${newCard}.jpg' alt='no-red-pic'>`;
     $(`.${opponent}-cards`).prepend(newCardTag);
-    //console.log(cardDeck.length);
+    console.log(cardDeck.length);
     console.log(cardDict)
   }
   // stand button listener
@@ -328,11 +352,8 @@ $( document ).ready(function() {
 
     playersTurn = false;
 
-    let dealerPoints = extractResults("dealer");
-    let playerPoints = extractResults("player");
-
     if(!startOfGame && !gameOver) {
-      console.log("hit stand")
+      //console.log("hit stand")
       stand();
     }
   });
@@ -342,11 +363,11 @@ $( document ).ready(function() {
     let result    = extractResults(opponent);
     let newResult = 0;
     newCard       = newCard === "ace" ? 11 : newCard;
-    console.log(result, newCard, result + newCard)
+    //console.log(result, newCard, result + newCard)
     if (result + newCard > winThreshold) {
       cardDict[opponent].forEach(card => {
         newResult += card !== "ace" ? card : 1;
-      })
+      });
     } else {
       newResult = extractResults(opponent) + newCard;
     }
@@ -360,13 +381,13 @@ $( document ).ready(function() {
     resultDealer = extractResults("dealer");
     resultPlayer = extractResults("player");
     let dealerBound = 17;
-    let hitCardsForDealer =  (resultDealer < dealerBound) // ( (resultDealer < dealerBound) || (resultDealer >= dealerBound && resultDealer <= resultPlayer) );
+    let hitCardsForDealer =  (resultDealer < dealerBound)
     while(hitCardsForDealer) {
       hitNewCard("dealer");
       resultDealer = extractResults("dealer");
-      hitCardsForDealer =  (resultDealer < dealerBound)  // ( (resultDealer < dealerBound) || (resultDealer >= dealerBound && resultDealer <= resultPlayer) );
+      hitCardsForDealer =  (resultDealer < dealerBound)
     }
-    console.log(resultDealer, resultPlayer)
+    //console.log(resultDealer, resultPlayer)
     checkWinner(resultDealer, resultPlayer);
     STATE        = "NEXT";
     resultDealer = 0;
