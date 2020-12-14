@@ -71,11 +71,12 @@ $( document ).ready(function() {
     resultDealer = extractResults("dealer");
     getNextCards("player", pathToCheck);
     resultPlayer = extractResults("player");
+
+
     checkWinner(resultDealer, resultPlayer);
     startOfGame = false;
 
-    console.log(cardDeck.length);
-    //console.log(cardDict)
+    //console.log(cardDeck.length);
   });
 
   function removeDealersCoveredCard() {
@@ -114,6 +115,7 @@ $( document ).ready(function() {
     
     if (opponent === "player") {
       rightCard = (Math.floor(Math.random()*52)+1) % 53;
+
       document.querySelector(`.${opponent}-start-card-left`).src = newPath+rightCard+".jpg";
       let rigthCardValue = mapNumberToCardValue(rightCard);
       cards[1]  = rigthCardValue;
@@ -129,9 +131,9 @@ $( document ).ready(function() {
       $(`.${opponent}-cards`).prepend(newCardTag);
       gameOver    = false;
     }
+
     document.querySelector(`.${opponent}-start-card-right`).src  = newPath+leftCard+".jpg";
 
-    //console.log(extractResults(opponent))
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     let pointsAceFlagCardsLength = null;
 
@@ -139,8 +141,6 @@ $( document ).ready(function() {
     pointsAceFlagCardsLength = calculate(extractResults(opponent), cards);
     // put cards into the dictionary to recalculate aces if neccassary
     rememberCards(opponent, leftCardValue)
-
-    console.log(pointsAceFlagCardsLength)
 
     //display the cards
     displayPoints(opponent, pointsAceFlagCardsLength); 
@@ -178,17 +178,24 @@ $( document ).ready(function() {
   // function to reset the values
   function resetResults(opponent) {
     $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: 0`);
+    resultDealer = 0;
+    resultPlayer = 0;
   }
 
   // function to display the values and differ the ace value
   function displayPoints(opponent, pointsAceFlagCardsLength) {
+    //console.log(pointsAceFlagCardsLength)
     let result = pointsAceFlagCardsLength[0];
     if (result === 21 && pointsAceFlagCardsLength[1] && pointsAceFlagCardsLength[2]) {
       console.log("BJ")
       result = BLACKJACK;
       gameOver = true;
       $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${result}`);
+
+      console.log("disp: "+extractResults(opponent))
+
       if (extractResults("dealer") >= 10) { // if dealer also can hit a Black Jack
+        console.log("dealer hit for BJ")
         stand();
       }
     }
@@ -202,7 +209,6 @@ $( document ).ready(function() {
   }
 
   function calculate(actualPoints, cards) {
-    //cards = ["ace", "ace"] // test
     let points = actualPoints;
     let aceFlag = false;
 
@@ -216,14 +222,16 @@ $( document ).ready(function() {
         } else {
           points += 11;
         }
-      }
-    })
-    return [points, aceFlag, cards.length === 2]
+      } 
+    });
+    return [points, aceFlag, cards.length === 2] // Object.keys(dictionary).length //  || (cards === "ace" && actualPoints === 10)
   }
 
   // function to check the temporary winner
   function checkWinner(resultDealer, resultPlayer) {
+
     console.log(resultDealer, resultPlayer)
+
     if(document.querySelector(".winner") !== null) {
       document.querySelector(".winner").remove();
     }
@@ -236,43 +244,35 @@ $( document ).ready(function() {
 
     let dealerColor = "red";
     let playerColor = "red";
-    if (resultDealer === resultPlayer && (resultPlayer === BLACKJACK)) {
+    let checkDealerBlackJackAfterNext = (resultPlayer === BLACKJACK && resultDealer === 21 && Object.keys(cardDict["dealer"]).length === 2);
+    if (resultDealer === resultPlayer && (resultPlayer === BLACKJACK) || checkDealerBlackJackAfterNext) {
+      opponent = "dealer";
+      $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${BLACKJACK}`);
+
       gameOver = true;
       $(".intro").append("<h1 class='winner'>Draw!</h1>");
-      //$(".dealer-points").css('color', 'white');
-      //$(".player-points").css('color', 'white');
       dealerColor = "white";
       playerColor = "white";
     } else if (resultDealer === BLACKJACK) {
       $(".intro").append("<h1 class='winner'>Dealer wins!</h1>");
       gameOver = true;
-      //$(".dealer-points").css('color', 'white');
-      //$(".player-points").css('color', 'red');
       dealerColor = "white";
       playerColor = "red";
     } else if (resultPlayer === BLACKJACK) {
       $(".intro").append("<h1 class='winner'>Player wins!</h1>");
       gameOver = true;
-      //$(".dealer-points").css('color', 'red');
-      //$(".player-points").css('color', 'white');
       dealerColor = "red";
       playerColor = "white";
     } else if (((resultDealer > resultPlayer) && resultDealer <= 21) || (resultPlayer > 21)) {
       $(".intro").append("<h1 class='winner'>Dealer wins!</h1>")
-      //$(".dealer-points").css('color', 'white');
-      //$(".player-points").css('color', 'red');
       dealerColor = "white";
       playerColor = "red";
     } else if (((resultDealer < resultPlayer) && resultPlayer <= 21) || resultDealer > 21) {
       $(".intro").append("<h1 class='winner'>Player wins!</h1>");
-      //$(".dealer-points").css('color', 'red');
-      //$(".player-points").css('color', 'white');
       dealerColor = "red";
       playerColor = "white";
     } else {
       $(".intro").append("<h1 class='winner'>Draw!</h1>")
-      //$(".dealer-points").css('color', 'white');
-      //$(".player-points").css('color', 'white');
       dealerColor = "white";
       playerColor = "white";
     }
@@ -293,8 +293,6 @@ $( document ).ready(function() {
 
       resultDealer = extractResults("dealer");
       resultPlayer = extractResults("player");
-
-      //console.log(resultPlayer)
 
       checkWinner(resultDealer, resultPlayer);
     }
@@ -332,16 +330,12 @@ $( document ).ready(function() {
 
     pointsAceFlagCardsLength[0] = aceOption(opponent, mappenCardValue);
 
-    /*
-    $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${pointsAceFlagCardsLength[0]}`);
-    */
-    //console.log(pointsAceFlagCardsLength)
     displayPoints(opponent, pointsAceFlagCardsLength)
 
     let newCardTag = `<img class='${opponent}-start-card ${opponent}-start-card-new' src='images/cards/${newCard}.jpg' alt='no-red-pic'>`;
     $(`.${opponent}-cards`).prepend(newCardTag);
-    console.log(cardDeck.length);
-    console.log(cardDict)
+    //console.log(cardDeck.length);
+    //console.log(cardDict)
   }
   // stand button listener
   document.querySelector(".stand-button").addEventListener("click", function() {
@@ -353,7 +347,6 @@ $( document ).ready(function() {
     playersTurn = false;
 
     if(!startOfGame && !gameOver) {
-      //console.log("hit stand")
       stand();
     }
   });
@@ -363,7 +356,6 @@ $( document ).ready(function() {
     let result    = extractResults(opponent);
     let newResult = 0;
     newCard       = newCard === "ace" ? 11 : newCard;
-    //console.log(result, newCard, result + newCard)
     if (result + newCard > winThreshold) {
       cardDict[opponent].forEach(card => {
         newResult += card !== "ace" ? card : 1;
@@ -376,10 +368,17 @@ $( document ).ready(function() {
 
   // function to activate the hit part of the dealer if it is neccessary
   function stand() {
+    console.log("STAND")
+    //console.log(cardDict)
+
     removeDealersCoveredCard();
 
     resultDealer = extractResults("dealer");
     resultPlayer = extractResults("player");
+
+    console.log("after dealer hit for BJ")
+    console.log(resultDealer, resultPlayer) // if clause dealer has two cards and 21 ?
+
     let dealerBound = 17;
     let hitCardsForDealer =  (resultDealer < dealerBound)
     while(hitCardsForDealer) {
@@ -387,11 +386,15 @@ $( document ).ready(function() {
       resultDealer = extractResults("dealer");
       hitCardsForDealer =  (resultDealer < dealerBound)
     }
-    //console.log(resultDealer, resultPlayer)
+
+    console.log("after while")
+    console.log(resultDealer, resultPlayer);
+    console.log("------------------------------")
+
     checkWinner(resultDealer, resultPlayer);
     STATE        = "NEXT";
-    resultDealer = 0;
-    resultPlayer = 0;
+    //resultDealer = 0;
+    //resultPlayer = 0;
     gameOver     = true;
   }
 });
