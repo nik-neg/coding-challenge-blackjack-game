@@ -27,6 +27,7 @@ $( document ).ready(function() {
   let cardDeck     = []
   let winThreshold = 21;
   let BLACKJACK    = "Black Jack";
+  let playerHasBlackJack  = false;
   let cardDict     = {"player": [], "dealer": []}
 
 
@@ -41,6 +42,7 @@ $( document ).ready(function() {
     resetResults("player");
     resetResults("dealer");
     playersTurn  = true;
+    playerHasBlackJack  = false;
     cardDeck     = []
     cardDict     = {"player": [], "dealer": []}
  
@@ -151,19 +153,20 @@ $( document ).ready(function() {
     cardDict[`${opponent}`].push(cardValue)
   }
 
-  function putNewCardIntoListOfUsedCards(card) { // Fehler ?
-    while(!cardDeck.includes(card)) {
-      card = (Math.floor(Math.random()*52)+1) % 53;
+  function putNewCardIntoListOfUsedCards(card) { // Fehler ?: gibt undefined zurück
+    console.log("gived card: "+card, !cardDeck.includes(card))
+    while(true) {
+      card = (Math.floor(Math.random()*52)+1) % 53; // it's possible to get a card which is alredy inside, then it should continue!
       if (!cardDeck.includes(card)) {
         console.log("pushed card: "+card)
         cardDeck.push(card);
-        break;
+        //break;
+        console.log(cardDeck)
+        //cardDeck.forEach( card => { console.log(mapNumberToCardValue(card))})
+        console.log("returned card: "+cardDeck[cardDeck.length-1])
+        return cardDeck[cardDeck.length-1]; // WRONG: returns muplitple times last el.
       }
     }
-    console.log(cardDeck)
-    //cardDeck.forEach( card => { console.log(mapNumberToCardValue(card))})
-    console.log("returned card: "+cardDeck[cardDeck.length-1])
-    return cardDeck[cardDeck.length-1];
   }
 
   // the card are named regarding their indizes -1 e.g: 1-4 is two, 5-8 is three and so on
@@ -191,15 +194,16 @@ $( document ).ready(function() {
     if (result === 21 && pointsAceFlagCardsLength[1] && pointsAceFlagCardsLength[2]) {
       result = BLACKJACK;
       gameOver = true;
+      playerHasBlackJack = true;
       $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${result}`);
 
-      if (extractResults("dealer") >= 10) { // if dealer also can hit a Black Jack
-        stand();
+      if (extractResults("dealer") >= 10 && playerHasBlackJack) { // if dealer also can hit a Black Jack
+        stand(playerHasBlackJack);
       }
     }
     else if (result === 21) { // after next 10 or 11 to BJ makes output not BJ,
       $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${result}`);
-      stand();
+      stand(playerHasBlackJack);
     }
     
     $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${result}`);
@@ -237,36 +241,46 @@ $( document ).ready(function() {
       resultPlayer = parseInt(resultPlayer);
     }
 
+    console.log(resultDealer, resultPlayer)
+
+    console.log("check winner: "+resultDealer+" : "+cardDict["dealer"]+" - "+cardDict["dealer"].length, cardDict["dealer"].length === 2);
+
     let dealerColor = "red";
     let playerColor = "red";
-    let checkDealerBlackJackAfterNext = (resultPlayer === BLACKJACK && resultDealer === 21 && Object.keys(cardDict["dealer"]).length === 2);
+    let checkDealerBlackJackAfterNext = ((resultPlayer === BLACKJACK) || (resultPlayer === 21))  && (resultDealer === 21 && cardDict["dealer"].length === 2);
+    // both have Black Jack
     if (resultDealer === resultPlayer && (resultPlayer === BLACKJACK) || checkDealerBlackJackAfterNext) {
       opponent = "dealer";
       $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${BLACKJACK}`);
-
       gameOver = true;
       $(".intro").append("<h1 class='winner'>Draw!</h1>");
       dealerColor = "white";
       playerColor = "white";
-    } else if (resultDealer === BLACKJACK) {
-      $(".intro").append("<h1 class='winner'>Dealer wins!</h1>");
+      // dealer has Black JackWW
+    } else if (resultDealer === 21 && cardDict["dealer"].length === 2) {
+      opponent = "dealer";
+      $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${BLACKJACK}`);
       gameOver = true;
+      $(".intro").append("<h1 class='winner'>Dealer wins!</h1>");
       dealerColor = "white";
       playerColor = "red";
+      // player has Black Jack
     } else if (resultPlayer === BLACKJACK) {
       $(".intro").append("<h1 class='winner'>Player wins!</h1>");
       gameOver = true;
       dealerColor = "red";
       playerColor = "white";
+      // dealer has more points, or player busted
     } else if (((resultDealer > resultPlayer) && resultDealer <= 21) || (resultPlayer > 21)) {
       $(".intro").append("<h1 class='winner'>Dealer wins!</h1>")
       dealerColor = "white";
       playerColor = "red";
+      // player has more points, or dealer busted
     } else if (((resultDealer < resultPlayer) && resultPlayer <= 21) || resultDealer > 21) {
       $(".intro").append("<h1 class='winner'>Player wins!</h1>");
       dealerColor = "red";
       playerColor = "white";
-    } else {
+    } else { // both player has same points
       $(".intro").append("<h1 class='winner'>Draw!</h1>")
       dealerColor = "white";
       playerColor = "white";
@@ -298,7 +312,7 @@ $( document ).ready(function() {
       gameOver     = true;
     } else if (resultPlayer === 21) {
       STATE        = "STAND";
-      stand();
+      stand(playerHasBlackJack);
     }
   });
 
@@ -320,6 +334,7 @@ $( document ).ready(function() {
 
     displayPoints(opponent, pointsAceFlagCardsLength)
 
+
     let newCardTag = `<img class='${opponent}-start-card ${opponent}-start-card-new' src='images/cards/${newCard}.jpg' alt='no-red-pic'>`;
     $(`.${opponent}-cards`).prepend(newCardTag);
     console.log(cardDeck.length);
@@ -334,7 +349,7 @@ $( document ).ready(function() {
     playersTurn = false;
 
     if(!startOfGame && !gameOver) {
-      stand();
+      stand(playerHasBlackJack);
     }
   });
 
@@ -354,11 +369,13 @@ $( document ).ready(function() {
   }
 
   // function to activate the hit part of the dealer if it is neccessary
-  function stand() {
+  function stand(playerHasBlackJack) {
     removeDealersCoveredCard();
 
     resultDealer = extractResults("dealer");
     resultPlayer = extractResults("player");
+
+    let oneRun = playerHasBlackJack ? 1 : -1;
 
     let dealerBound = 17;
     let hitCardsForDealer =  (resultDealer < dealerBound)
@@ -366,6 +383,10 @@ $( document ).ready(function() {
       hitNewCard("dealer");
       resultDealer = extractResults("dealer");
       hitCardsForDealer =  (resultDealer < dealerBound)
+
+      if (playerHasBlackJack) { // breaks out if the player has a Black Jack and the dealer has 10 or 11 and can hit once for a Black Jack, too.
+        break;
+      }
     }
 
     console.log("------------------------------")
