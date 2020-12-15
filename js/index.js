@@ -37,16 +37,17 @@ $( document ).ready(function() {
     if (STATE !== "PLAY" && STATE !== "NEXT" && !gameOver) {
       return;
     }
-    STATE = "NEXT";
-    console.log("---------------------------------")
+    // reset values and states
     resetResults("player");
     resetResults("dealer");
-    playersTurn  = true;
+    resultDealer        = 0;
+    resultPlayer        = 0;
+    STATE               = "NEXT";
+    playersTurn         = true;
     playerHasBlackJack  = false;
-    cardDeck     = []
-    cardDict     = {"player": [], "dealer": []}
+    cardDeck            = []
+    cardDict            = {"player": [], "dealer": []}
  
-
     // removes images after hit and stand for the next game
     let addedImages = document.querySelectorAll('.player-start-card-new');
     for (let i = 0; i<addedImages.length; i++) {
@@ -64,7 +65,6 @@ $( document ).ready(function() {
     let pathToCheck = "";
     if(startOfGame) {
       pathToCheck = "illustration";
-
     } else {
       pathToCheck = "cards"
     }
@@ -74,11 +74,8 @@ $( document ).ready(function() {
     getNextCards("player", pathToCheck);
     resultPlayer = extractResults("player");
 
-
     checkWinner(resultDealer, resultPlayer);
     startOfGame = false;
-
-    console.log(cardDeck.length);
   });
 
   function removeDealersCoveredCard() {
@@ -91,13 +88,12 @@ $( document ).ready(function() {
   function getNextCards(opponent, pathToCheck) {
     // get new cards
     let leftCard = -1;
-    leftCard = putNewCardIntoListOfUsedCards(leftCard);
-    console.log("left card: "+leftCard)
+    leftCard     = putNewCardIntoListOfUsedCards(leftCard);
 
     // set points for player
     let leftCardValue  = mapNumberToCardValue(leftCard);
-    let cards = []
-    cards[0]  = leftCardValue;
+    let cards          = []
+    cards[0]           = leftCardValue;
 
     // get path of cards
     let directoryPathOfImage = document.querySelector(`.${opponent}-start-card`).src;
@@ -109,17 +105,16 @@ $( document ).ready(function() {
     
     // set new cards to the path
     let newPath = "";
-    newPath = directoryPathOfImage.slice(0, directoryPathOfImage.indexOf(pathToCheck))+"cards/";
+    newPath     = directoryPathOfImage.slice(0, directoryPathOfImage.indexOf(pathToCheck))+"cards/";
     
     if (opponent === "player") {
       //rightCard = (Math.floor(Math.random()*52)+1) % 53;
       let rightCard = -1;
-      rightCard = putNewCardIntoListOfUsedCards(rightCard);
-      console.log("right card: "+rightCard)
+      rightCard     = putNewCardIntoListOfUsedCards(rightCard);
 
       document.querySelector(`.${opponent}-start-card-left`).src = newPath+rightCard+".jpg";
       let rigthCardValue = mapNumberToCardValue(rightCard);
-      cards[1]  = rigthCardValue;
+      cards[1]           = rigthCardValue;
 
       // put cards into the dictionary to recalculate aces if neccassary
       rememberCards(opponent, rigthCardValue)
@@ -135,36 +130,25 @@ $( document ).ready(function() {
     }
 
     document.querySelector(`.${opponent}-start-card-right`).src  = newPath+leftCard+".jpg";
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-    let pointsAceFlagCardsLength = null;
-
-    // calculate
-    pointsAceFlagCardsLength = calculate(extractResults(opponent), cards);
+    
+    let pointsAceFlagCardsLength = calculate(extractResults(opponent), cards);
     // put cards into the dictionary to recalculate aces if neccassary
     rememberCards(opponent, leftCardValue)
 
     //display the cards
     displayPoints(opponent, pointsAceFlagCardsLength); 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   }
 
   function rememberCards(opponent, cardValue) {
     cardDict[`${opponent}`].push(cardValue)
   }
 
-  function putNewCardIntoListOfUsedCards(card) { // Fehler ?: gibt undefined zurück
-    console.log("gived card: "+card, !cardDeck.includes(card))
+  function putNewCardIntoListOfUsedCards(card) {
     while(true) {
-      card = (Math.floor(Math.random()*52)+1) % 53; // it's possible to get a card which is alredy inside, then it should continue!
+      card = (Math.floor(Math.random()*52)+1) % 53;
       if (!cardDeck.includes(card)) {
-        console.log("pushed card: "+card)
         cardDeck.push(card);
-        //break;
-        console.log(cardDeck)
-        //cardDeck.forEach( card => { console.log(mapNumberToCardValue(card))})
-        console.log("returned card: "+cardDeck[cardDeck.length-1])
-        return cardDeck[cardDeck.length-1]; // WRONG: returns muplitple times last el.
+        return cardDeck[cardDeck.length-1];
       }
     }
   }
@@ -184,8 +168,6 @@ $( document ).ready(function() {
   // function to reset the values
   function resetResults(opponent) {
     $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: 0`);
-    resultDealer = 0;
-    resultPlayer = 0;
   }
 
   // function to display the values and differ the ace value
@@ -205,12 +187,11 @@ $( document ).ready(function() {
       $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${result}`);
       stand(playerHasBlackJack);
     }
-    
     $(`.${opponent}-points`).text(`${opponent[0].toUpperCase()+opponent.slice(1, opponent.length)}: ${result}`);
   }
 
   function calculate(actualPoints, cards) {
-    let points = actualPoints;
+    let points  = actualPoints;
     let aceFlag = false;
 
     cards.forEach(card => {
@@ -225,7 +206,7 @@ $( document ).ready(function() {
         }
       } 
     });
-    return [points, aceFlag, cards.length === 2] // Object.keys(dictionary).length //  || (cards === "ace" && actualPoints === 10)
+    return [points, aceFlag, cards.length === 2]
   }
 
   // function to check the temporary winner
@@ -240,11 +221,6 @@ $( document ).ready(function() {
     if(resultPlayer !== BLACKJACK) {
       resultPlayer = parseInt(resultPlayer);
     }
-
-    console.log(resultDealer, resultPlayer)
-
-    console.log("check winner: "+resultDealer+" : "+cardDict["dealer"]+" - "+cardDict["dealer"].length, cardDict["dealer"].length === 2);
-
     let dealerColor = "red";
     let playerColor = "red";
     let checkDealerBlackJackAfterNext = ((resultPlayer === BLACKJACK) || (resultPlayer === 21))  && (resultDealer === 21 && cardDict["dealer"].length === 2);
@@ -320,7 +296,6 @@ $( document ).ready(function() {
   function hitNewCard(opponent) {
     let newCard = -1;
     newCard     = putNewCardIntoListOfUsedCards(newCard);
-    console.log(newCard);
 
     let mappenCardValue = mapNumberToCardValue(newCard);
     
@@ -337,15 +312,13 @@ $( document ).ready(function() {
 
     let newCardTag = `<img class='${opponent}-start-card ${opponent}-start-card-new' src='images/cards/${newCard}.jpg' alt='no-red-pic'>`;
     $(`.${opponent}-cards`).prepend(newCardTag);
-    console.log(cardDeck.length);
   }
   // stand button listener
   document.querySelector(".stand-button").addEventListener("click", function() {
     if (STATE !== "HIT" && STATE !== "NEXT" || gameOver) {
       return;
     }
-    STATE = "STAND";
-
+    STATE       = "STAND";
     playersTurn = false;
 
     if(!startOfGame && !gameOver) {
@@ -372,13 +345,11 @@ $( document ).ready(function() {
   function stand(playerHasBlackJack) {
     removeDealersCoveredCard();
 
-    resultDealer = extractResults("dealer");
-    resultPlayer = extractResults("player");
-
-    let oneRun = playerHasBlackJack ? 1 : -1;
-
-    let dealerBound = 17;
+    resultDealer          = extractResults("dealer");
+    resultPlayer          = extractResults("player");
+    let dealerBound       = 17;
     let hitCardsForDealer =  (resultDealer < dealerBound)
+
     while(hitCardsForDealer) {
       hitNewCard("dealer");
       resultDealer = extractResults("dealer");
@@ -389,12 +360,8 @@ $( document ).ready(function() {
       }
     }
 
-    console.log("------------------------------")
-
     checkWinner(resultDealer, resultPlayer);
     STATE        = "NEXT";
-    //resultDealer = 0;
-    //resultPlayer = 0;
     gameOver     = true;
   }
 });
