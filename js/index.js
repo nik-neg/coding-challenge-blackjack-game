@@ -26,7 +26,7 @@ $( document ).ready(function() {
   let resultPlayer = 0;
   let cardDeck     = []
   let winThreshold = 21;
-  let BLACKJACK    = "Black Jack";
+  let BLACKJACK    = "BJ";
   let playerHasBlackJack  = false;
   let cardDict     = {"player": [], "dealer": []}
 
