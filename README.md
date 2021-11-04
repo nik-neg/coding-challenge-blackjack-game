@@ -12,3 +12,9 @@ Have fun! :)
 
 # Intro page
 ![alt text](https://github.com/nik-neg/coding-challenge-blackjack-game/blob/master/images/game/1_intro.png)
+
+# Board page
+![alt text](https://github.com/nik-neg/coding-challenge-blackjack-game/blob/master/images/game/2_board.png)
+
+# Intro page
+![alt text](https://github.com/nik-neg/coding-challenge-blackjack-game/blob/master/images/game/3_board-win.png)
